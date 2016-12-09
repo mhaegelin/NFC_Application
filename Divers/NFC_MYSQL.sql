@@ -101,26 +101,52 @@ ALTER TABLE enseigne ADD CONSTRAINT FK_enseigne_IDGroupe FOREIGN KEY (IDGroupe) 
 #INSTANCES
 #------------------------------------------------------------
 
+# Instances Utilisateur
+# INSERT INTO Utilisateur VALUES (IDUtil, NomUtil, PrenomUtil, MDPUtil, MailUtil);
 
 
 
 
 
 
+# Instances Etudiant
+# INSERT INTO Etudiant VALUES (IDEtud, NomEtud, PrenomEtud, MailEtud, IDGroupe, IDPromo);
 
 
 
 
 
+# Instances Cours
+# INSERT INTO Cours VALUES (IDCours, IntituleCours, DebutCours, FinCours, IDSalle);
 
 
 
 
 
+# Instances Groupe
+# INSERT INTO Groupe VALUES (IDGroupe, IntituleGroupe);
+
+
+
+# Instances Salle
+# INSERT INTO Salle VALUES (IDSalle, NomSalle);
 
 
 
 
+# Instances Promotion
+# INSERT INTO Promotion VALUES (IDPromo, IntitulePromo);
 
+
+
+
+# Instances enseigne
+# INSERT INTO enseigne VALUES (IDCours, IDUtil, IDGroupe);
+
+
+
+
+# Instances 
+# INSERT INTO Utilisateur VALUES (IDUtil, NomUtil, PrenomUtil, MDPUtil, MailUtil);
 
 
