@@ -1,0 +1,25 @@
+﻿Compte rendu de la réunion du 29/11 (calendrier prévisionnel)
+
+Calendrier prévisionnel NFC à compléter avec vos tâches à vous, ou à revoir si besoin ;) : 
+
+25/11/2016: Installer & configurer DJANGO (en local). Installer & configurer la base de donnée MySQL (en local)
+
+28/11/2016: Interfacer DJANGO et la Base De Données
+
+05/12/2016: TU Raspberry (prise en main)
+
+07/12/2016: Remise d'un rapport sur l'exhaustivité des informations NFC que le Raspberry peut recueillir 
+
+21/12/2016: Remise d'une proposition de protocol de communication Raspberry/Service WEB
+
+25/01/2016: 1e implémentation de l'application client pour Raspberry
+
+01/02/2017: TU de la lecture des informations NFC via l'application client crée
+
+15/02/2017: TU de la communication Raspberry / Service WEB
+
+22/02/2017: Réunion sur les modalités de cryptage des données changées Raspberry / Service WEB
+
+01/03/2017: Test de la communication cryptée
+
+08/03/2017: TI du client Raspberry au Service WEB
