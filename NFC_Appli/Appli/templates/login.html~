@@ -8,7 +8,7 @@
   <header>
       <h1><center>Veuillez vous identifier</center></h1>
       <h2>Login</h2>
-      <form method="post" action="/Appli/accueil/">
+      <form method="post" action="/accueil/">
 		{% csrf_token %}
 		{{ formulaire.as_p }}
       <button type="submit">Login</button>

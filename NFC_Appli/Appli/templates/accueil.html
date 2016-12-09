@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Login</title>
+</head>
+<body>
+  <header>
+	<h1><center>Bonjour {{ user.username }}!</center></h1>
+<a href="{% url 'logout' %}">logout</a>
+<p>
+<form method="post" action="/Appli/accueil/">
+		{% csrf_token %}
+		{{ formulaire.as_p }}
+<button type="submit">Ajouter</button>
+</form>
+</header>
+</body>
+</html>
