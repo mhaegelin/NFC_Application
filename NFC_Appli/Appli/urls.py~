@@ -5,7 +5,7 @@ from django.views.generic.base import TemplateView
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.EcranLogin, name='login'),
+    url(r'^$', views.login, name='login'),
     url(r'^accueil', views.accueil, name='accueil'),
     url(r'^logout$', views.log_out, name='logout'),
 ]
