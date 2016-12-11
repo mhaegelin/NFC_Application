@@ -69,8 +69,18 @@ def fiche(request):
 	print user.id	
 	cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
 
-	mGroupe = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
-	#liste_etu = Etudiant.objects.filter(idgroupe = mGroupe.idgroupe)
-	#nbEtudiant = liste_etu.count()
-	context = {'list_etu' : mGroupe, 'user' : user, 'cours' : cours}
+	liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
+	nbEtudiant = liste_etu.count()
+	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
 	return render(request, "fiche.html", context)
+
+def validated(request): #Cette vue recupere la liste des etudiants coches, et met a jour la fiche presompt 
+	if request.user.is_authenticated:
+		num = request.POST.get('17', '')
+		print num
+		return render(request, 'validated.html', {'num' : num })
+	else:
+		return HttpResponse("User inconnu")
+		
+
+

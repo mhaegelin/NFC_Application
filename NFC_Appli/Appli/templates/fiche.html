@@ -7,19 +7,29 @@
 
 <body>
   <header>
+	<left><a href="{% url 'logout' %}">logout</a></left>
 	<h1><center>{{ user.last_name }} {{ user.first_name }}</center></h1>
 	<h2><center>{{cours.intitulecours}}</center></h2>
-	<a href="{% url 'logout' %}">logout</a>
+	
   </header>
 
-
-  <ul id="user-list">
+  <section id="fiche_presompt">
       <hi> NOMBRE D'ETUDIANTS :<strong> {{ nbEtudiant}} </strong><br/><br/><br/></hi>
-			{% for etu in list_etu %}
-				<label>{{ etu.nometud }}</label><br />
-			{% endfor %}
-      
-</ul>
-
+		<form action="{% url 'validated' %}" method="post"> 
+		  
+		  {% for etu in list_etu %}
+		  <tr>
+			  <td>
+				  {% csrf_token %}
+				  <input id="id_{{etu.idetud}}" name="{{etu.idetud}}" type="checkbox">
+			  </td>
+			  <td>
+				  <label>{{ etu.nometud }}</label><br />
+			  </td>
+		  </tr>
+		  {% endfor %}
+		  <input type="submit" value="Valider">
+		</form>
+  </section>
 </body>
 </html>

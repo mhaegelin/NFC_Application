@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^accueil/addutil$', views.addutil, name='addutil'),
     url(r'^logout$', views.log_out, name='logout'),
     url(r'^Fiche$', views.fiche, name='fiche'),
+	url(r'^Validated$', views.validated, name='validated'),
 ]

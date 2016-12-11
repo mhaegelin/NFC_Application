@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Fiche présomptive</title>
+</head>
+
+<body>
+  <header>
+	<left><a href="{% url 'logout' %}">logout</a></left>
+	<h1><center>{{ user.last_name }} {{ user.first_name }}</center></h1>
+	
+  </header>
+
+  Validation réussie.
+
+  {{ num }}
+</body>
+</html>
