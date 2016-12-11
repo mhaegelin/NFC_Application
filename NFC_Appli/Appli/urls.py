@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^$', views.EcranLogin, name='login'),
     url(r'^accueil', views.accueil, name='accueil'),
     url(r'^logout$', views.log_out, name='logout'),
+	url(r'^Fiche$', views.fiche, name='fiche'),
 ]
