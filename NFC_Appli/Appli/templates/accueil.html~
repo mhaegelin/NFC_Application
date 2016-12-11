@@ -9,8 +9,11 @@
 	<h1><center>Bonjour {{ user.username }}!</center></h1>
 <a href="{% url 'logout' %}">logout</a>
 <p>
-<form method="post" action="/Appli/accueil/">
+<form method="post" action="/Appli/accueil/addutil">
 		{% csrf_token %}
-		{{ formulaire.as_p }}
+		{{ formulaire }}
 <button type="submit">Ajouter</button>
 </form>
+</header>
+</body>
+</html>

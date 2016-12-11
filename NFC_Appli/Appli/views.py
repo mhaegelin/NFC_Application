@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django import forms
 from django.template import loader
 from Appli.models import *
-
+from django.contrib.auth.models import User
 
 class LoginForm(forms.Form):
     Username = forms.CharField(label='Username', max_length=100)
@@ -15,9 +15,11 @@ class LoginForm(forms.Form):
 class AddUser(forms.Form):
     Username = forms.CharField(label='Username', max_length=100)
     Password = forms.CharField(label='Password', max_length=100, widget=forms.PasswordInput)
+    Name = forms.CharField(label='Name', max_length=100)
+    LastName = forms.CharField(label='LastName', max_length=100)
     Mail = forms.CharField(label='Mail', max_length=100, widget=forms.EmailInput)
-    CHOICES = (('1', 'SuperUtilisateur',), ('2', 'Utilisateur standard',))
-    choice_field = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES)
+    CHOICES = (('0', 'Utilisateur standard'), ('1', 'SuperUtilisateur'))
+    choice_field = forms.ChoiceField(label='ChoiceField', widget=forms.RadioSelect, choices=CHOICES)
 
 def hello(request):
     return HttpResponse("Hello, world. You're at the Appli index.")
@@ -33,9 +35,25 @@ def accueil(request):
 		util = AddUser()
 	        return render(request, 'accueil.html', {'formulaire' : util})
 	else: #Non-administrateur
+		login(request, user)
 		return redirect('fiche')
     else:
         return HttpResponse("Login ou mot de passe incorrect <a href=\"/Appli/\">Reessayer</a>")
+
+def addutil(request):
+    username = request.POST.get('Username', '')
+    password = request.POST.get('Password', '')
+    email = request.POST.get('Mail', '')
+    choice = request.POST.get('choice_field', '')
+    name = request.POST.get('Name', '')
+    lastname = request.POST.get('LastName', '')
+    util = AddUser()
+    utilisateur = User.objects.create_user(username, email, password)
+    utilisateur.is_superuser = choice
+    utilisateur.first_name = name
+    utilisateur.last_name = lastname
+    utilisateur.save()
+    return render(request, 'accueil.html', {'formulaire' : util})
 
 def EcranLogin(request):
     form = LoginForm()
@@ -46,10 +64,12 @@ def log_out(request):
 	return redirect('login')
 
 def fiche(request):
-	user = Utilisateur.objects.get(pk=2) #Il correspondra a l'utilisateur authentifie.
+	#Il correspondra a l'utilisateur authentifie.
+	user = request.user
+	print user.id	
 	cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
 
-	mGroupe = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.idutil, idgroupe__enseigne__idcours=cours.idcours)
+	mGroupe = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
 	#liste_etu = Etudiant.objects.filter(idgroupe = mGroupe.idgroupe)
 	#nbEtudiant = liste_etu.count()
 	context = {'list_etu' : mGroupe, 'user' : user, 'cours' : cours}
