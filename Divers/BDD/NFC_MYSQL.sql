@@ -154,11 +154,48 @@ ALTER TABLE appartient ADD CONSTRAINT FK_appartient_IDGroupe FOREIGN KEY (IDGrou
 ALTER TABLE appartient ADD CONSTRAINT FK_appartient_IDEtud FOREIGN KEY (IDEtud) REFERENCES Etudiant(IDEtud);
 
 
-INSERT INTO `Promotion` (`IDPromo`, `IntitulePromo`) VALUES
-(1, 'M1 ILC'),
-(2, 'M1 ISI'),
-(3, 'ENSIIE');
+INSERT INTO `enseigne` (`NomSalle`, `IDCours`, `id`, `IDFiche`) VALUES
+('A301', 1, 2 , 1),
+('J5', 2, 1, 2),
+('CLR', 3, 3, 3),
+('A301', 4, 4, 4),
+('J4', 5, 4, 5);
 
+
+
+INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGroupe`) VALUES
+(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00', 3),
+(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00', 1),
+(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00', 2),
+(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00', 1),
+(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00', 4);
+
+
+INSERT INTO `Utilisateur` (`id`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
+(1, 'Cedric', 'Bastoul', 'toto', 'email', 'cb', false, 'EFZTREF'),
+(2, 'Philippe', 'Clauss', 'toto', `email`, `username`, false, 'EFZTREF'),
+(3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
+(4, 'Stella', 'Marc', 'toto', `email`, `username`, false, 'EFZTREF'),
+(5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, 'EFZTREF');
+
+
+INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
+(1, true),
+(2, false),
+(3, true),
+(4, false),
+(5, false);
+
+INSERT INTO `contient` (`IDFiche`, `IDEtud`) VALUES
+(1, 1),
+(2, 1),
+(2, 2),
+(2, 3),
+(3, 1),
+(4, 1),
+(5, 1),
+(5, 2),
+(5, 3);
 
 
 INSERT INTO `Groupe` (`IDGroupe`, `IntituleGroupe`) VALUES
@@ -166,6 +203,21 @@ INSERT INTO `Groupe` (`IDGroupe`, `IntituleGroupe`) VALUES
 (2, 'Groupe 1 Anglais'),
 (3, 'Groupe CM Compilation'),
 (4, 'Groupe 1 Algo Dist');
+
+
+INSERT INTO `appartient` (`IDGroupe`, `IDEtud`) VALUES
+(1, 17),
+(1, 16),
+(2, 10),
+(2, 11),
+(2, 12),
+(3, 1),
+(4, 1),
+(4, 2),
+(4, 3);
+
+
+
 
 INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadged`, `TraceNFC`, `IDPromo`) VALUES
 (1, 'Faraux', 'Sylvein', 'sylvein.faraux@gmail.com', false, "FFFFF", 1),
@@ -186,9 +238,10 @@ INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadge
 (16, 'Nom13', 'Prenom13', 'prenom13.nom13@gmail.com', false, "FFFFF",3),
 (17, 'Nom14', 'Prenom14', 'prenom14.nom14@gmail.com', false, "FFFFF",3);
 
-INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`) VALUES
-(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00'),
-(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00'),
-(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00'),
-(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00'),
-(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00');
+INSERT INTO `Promotion` (`IDPromo`, `IntitulePromo`) VALUES
+(1, 'M1 ILC'),
+(2, 'M1 ISI'),
+(3, 'ENSIIE');
+
+
+
