@@ -82,5 +82,6 @@ def validated(request): #Cette vue recupere la liste des etudiants coches, et me
 	else:
 		return HttpResponse("User inconnu")
 		
-
+def test(request):
+	return render(request, "test.html")
 
