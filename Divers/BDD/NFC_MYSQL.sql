@@ -2,33 +2,6 @@
 #        Script MySQL.
 #------------------------------------------------------------
 
---
--- Table structure for table `auth_user`
---
-
-CREATE TABLE IF NOT EXISTS `auth_user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `password` varchar(128) NOT NULL,
-  `last_login` datetime DEFAULT NULL,
-  `is_superuser` tinyint(1) NOT NULL,
-  `username` varchar(150) NOT NULL,
-  `first_name` varchar(30) NOT NULL,
-  `last_name` varchar(30) NOT NULL,
-  `email` varchar(254) NOT NULL,
-  `is_staff` tinyint(1) NOT NULL,
-  `is_active` tinyint(1) NOT NULL,
-  `date_joined` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
-
---
--- Dumping data for table `auth_user`
---
-
-INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`) VALUES
-(1, 'pbkdf2_sha256$30000$mpJk3ZEpyN3j$5ebMmT+rr+dRg7SBLFiH3KxaabofDeB4os9bFW0q1AE=', '2016-12-11 14:11:12', 1, 'asususer', '', '', 'asususer@gmail.com', 1, 1, '2016-11-20 14:27:40');
-
 #------------------------------------------------------------
 # Table: Cours
 #------------------------------------------------------------
@@ -153,50 +126,10 @@ ALTER TABLE contient ADD CONSTRAINT FK_contient_IDEtud FOREIGN KEY (IDEtud) REFE
 ALTER TABLE appartient ADD CONSTRAINT FK_appartient_IDGroupe FOREIGN KEY (IDGroupe) REFERENCES Groupe(IDGroupe);
 ALTER TABLE appartient ADD CONSTRAINT FK_appartient_IDEtud FOREIGN KEY (IDEtud) REFERENCES Etudiant(IDEtud);
 
-
-INSERT INTO `enseigne` (`NomSalle`, `IDCours`, `id`, `IDFiche`) VALUES
-('A301', 1, 2 , 1),
-('J5', 2, 1, 2),
-('CLR', 3, 3, 3),
-('A301', 4, 4, 4),
-('J4', 5, 4, 5);
-
-
-
-INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGroupe`) VALUES
-(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00', 3),
-(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00', 1),
-(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00', 2),
-(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00', 1),
-(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00', 4);
-
-
-INSERT INTO `Utilisateur` (`id`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
-(1, 'Cedric', 'Bastoul', 'toto', 'email', 'cb', false, 'EFZTREF'),
-(2, 'Philippe', 'Clauss', 'toto', `email`, `username`, false, 'EFZTREF'),
-(3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
-(4, 'Stella', 'Marc', 'toto', `email`, `username`, false, 'EFZTREF'),
-(5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, 'EFZTREF');
-
-
-INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
-(1, true),
-(2, false),
-(3, true),
-(4, false),
-(5, false);
-
-INSERT INTO `contient` (`IDFiche`, `IDEtud`) VALUES
-(1, 1),
-(2, 1),
-(2, 2),
-(2, 3),
-(3, 1),
-(4, 1),
-(5, 1),
-(5, 2),
-(5, 3);
-
+INSERT INTO `Promotion` (`IDPromo`, `IntitulePromo`) VALUES
+(1, 'M1 ILC'),
+(2, 'M1 ISI'),
+(3, 'ENSIIE');
 
 INSERT INTO `Groupe` (`IDGroupe`, `IntituleGroupe`) VALUES
 (1, 'Groupe 1 Compilation'),
@@ -205,17 +138,12 @@ INSERT INTO `Groupe` (`IDGroupe`, `IntituleGroupe`) VALUES
 (4, 'Groupe 1 Algo Dist');
 
 
-INSERT INTO `appartient` (`IDGroupe`, `IDEtud`) VALUES
-(1, 17),
-(1, 16),
-(2, 10),
-(2, 11),
-(2, 12),
-(3, 1),
-(4, 1),
-(4, 2),
-(4, 3);
-
+INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
+(1, true),
+(2, false),
+(3, true),
+(4, false),
+(5, false);
 
 
 
@@ -238,10 +166,54 @@ INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadge
 (16, 'Nom13', 'Prenom13', 'prenom13.nom13@gmail.com', false, "FFFFF",3),
 (17, 'Nom14', 'Prenom14', 'prenom14.nom14@gmail.com', false, "FFFFF",3);
 
-INSERT INTO `Promotion` (`IDPromo`, `IntitulePromo`) VALUES
-(1, 'M1 ILC'),
-(2, 'M1 ISI'),
-(3, 'ENSIIE');
 
 
+
+INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGroupe`) VALUES
+(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00', 3),
+(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00', 1),
+(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00', 2),
+(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00', 1),
+(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00', 4);
+
+
+INSERT INTO `Utilisateur` (`id`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
+(1, 'Cedric', 'Bastoul', 'toto', 'email', 'cb', false, 'EFZTREF'),
+(2, 'Philippe', 'Clauss', 'toto', `email`, `username`, false, 'EFZTREF'),
+(3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
+(4, 'Stella', 'Marc', 'toto', `email`, `username`, false, 'EFZTREF'),
+(5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, 'EFZTREF');
+
+
+INSERT INTO `contient` (`IDFiche`, `IDEtud`) VALUES
+(1, 1),
+(2, 1),
+(2, 2),
+(2, 3),
+(3, 1),
+(4, 1),
+(5, 1),
+(5, 2),
+(5, 3);
+
+
+INSERT INTO `appartient` (`IDGroupe`, `IDEtud`) VALUES
+(1, 17),
+(1, 16),
+(2, 10),
+(2, 11),
+(2, 12),
+(3, 1),
+(4, 1),
+(4, 2),
+(4, 3);
+
+
+
+INSERT INTO `enseigne` (`NomSalle`, `IDCours`, `id`, `IDFiche`) VALUES
+('A301', 1, 2 , 1),
+('J5', 2, 1, 2),
+('CLR', 3, 3, 3),
+('A301', 4, 4, 4),
+('J4', 5, 4, 5);
 
