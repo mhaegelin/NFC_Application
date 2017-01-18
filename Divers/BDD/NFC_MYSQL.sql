@@ -21,15 +21,15 @@ CREATE TABLE Cours(
 #------------------------------------------------------------
 
 CREATE TABLE Utilisateur(
-        id          int (11) Auto_increment  NOT NULL ,
+        idUtil          int (11) Auto_increment  NOT NULL ,
         first_name  Varchar (25) ,
         last_name   Varchar (25) ,
         password    Varchar (25) ,
         email       Varchar (25) ,
         username    Varchar (25) ,
-        isSuperuser Bool ,
+        isSuperuser Boolean ,
         TraceNFC    Varchar (25) ,
-        PRIMARY KEY (id )
+        PRIMARY KEY (idUtil )
 )ENGINE=InnoDB;
 
 
@@ -53,7 +53,7 @@ CREATE TABLE Etudiant(
         NomEtud    Varchar (25) ,
         PrenomEtud Varchar (25) ,
         MailEtud   Varchar (25) ,
-        hasBadged  Bool ,
+        hasBadged  Boolean ,
         TraceNFC   Varchar (25) ,
         IDPromo    Int ,
         PRIMARY KEY (IDEtud )
@@ -77,7 +77,7 @@ CREATE TABLE Promotion(
 
 CREATE TABLE Fiche(
         IDFiche int (11) Auto_increment  NOT NULL ,
-        Valide  Bool ,
+        Valide  Boolean ,
         PRIMARY KEY (IDFiche )
 )ENGINE=InnoDB;
 
@@ -89,9 +89,9 @@ CREATE TABLE Fiche(
 CREATE TABLE enseigne(
         NomSalle Varchar (25) ,
         IDCours  Int NOT NULL ,
-        id       Int NOT NULL ,
+        idUtil       Int NOT NULL ,
         IDFiche  Int NOT NULL ,
-        PRIMARY KEY (IDCours ,id ,IDFiche )
+        PRIMARY KEY (IDCours ,idUtil ,IDFiche )
 )ENGINE=InnoDB;
 
 
@@ -119,7 +119,7 @@ CREATE TABLE appartient(
 ALTER TABLE Cours ADD CONSTRAINT FK_Cours_IDGroupe FOREIGN KEY (IDGroupe) REFERENCES Groupe(IDGroupe);
 ALTER TABLE Etudiant ADD CONSTRAINT FK_Etudiant_IDPromo FOREIGN KEY (IDPromo) REFERENCES Promotion(IDPromo);
 ALTER TABLE enseigne ADD CONSTRAINT FK_enseigne_IDCours FOREIGN KEY (IDCours) REFERENCES Cours(IDCours);
-ALTER TABLE enseigne ADD CONSTRAINT FK_enseigne_id FOREIGN KEY (id) REFERENCES Utilisateur(id);
+ALTER TABLE enseigne ADD CONSTRAINT FK_enseigne_id FOREIGN KEY (idUtil) REFERENCES Utilisateur(idUtil);
 ALTER TABLE enseigne ADD CONSTRAINT FK_enseigne_IDFiche FOREIGN KEY (IDFiche) REFERENCES Fiche(IDFiche);
 ALTER TABLE contient ADD CONSTRAINT FK_contient_IDFiche FOREIGN KEY (IDFiche) REFERENCES Fiche(IDFiche);
 ALTER TABLE contient ADD CONSTRAINT FK_contient_IDEtud FOREIGN KEY (IDEtud) REFERENCES Etudiant(IDEtud);
@@ -177,7 +177,7 @@ INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGr
 (5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00', 4);
 
 
-INSERT INTO `Utilisateur` (`id`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
+INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
 (1, 'Cedric', 'Bastoul', 'toto', 'email', 'cb', false, 'EFZTREF'),
 (2, 'Philippe', 'Clauss', 'toto', `email`, `username`, false, 'EFZTREF'),
 (3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
@@ -210,7 +210,7 @@ INSERT INTO `appartient` (`IDGroupe`, `IDEtud`) VALUES
 
 
 
-INSERT INTO `enseigne` (`NomSalle`, `IDCours`, `id`, `IDFiche`) VALUES
+INSERT INTO `enseigne` (`NomSalle`, `IDCours`, `idUtil`, `IDFiche`) VALUES
 ('A301', 1, 2 , 1),
 ('J5', 2, 1, 2),
 ('CLR', 3, 3, 3),
