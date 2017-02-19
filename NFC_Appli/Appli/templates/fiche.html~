@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Fiche présomptive</title>
+</head>
+
+<body>
+  <header>
+	<h1><center>{{ user.last_name }} {{ user.first_name }}</center></h1>
+	<h2><center>{{cours.intitulecours}}</center></h2>
+  </header>
+
+
+  <ul id="user-list">
+      <hi> NOMBRE D'ETUDIANTS :<strong> {{ nbEtudiant}} </strong><br/><br/><br/></hi>
+			{% for etu in list_etu %}
+				<label>{{ etu.nometud }}</label><br />
+			{% endfor %}
+      
+</ul>
+
+</body>
+</html>
