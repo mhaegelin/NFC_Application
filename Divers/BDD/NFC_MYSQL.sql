@@ -24,7 +24,7 @@ CREATE TABLE Utilisateur(
         idUtil          int (11) Auto_increment  NOT NULL ,
         first_name  Varchar (25) ,
         last_name   Varchar (25) ,
-        password    Varchar (25) ,
+        password    Varchar (50) ,
         email       Varchar (25) ,
         username    Varchar (25) ,
         isSuperuser Boolean ,
@@ -149,7 +149,7 @@ INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
 
 INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadged`, `TraceNFC`, `IDPromo`) VALUES
 (1, 'Faraux', 'Sylvein', 'sylvein.faraux@gmail.com', false, "FFFFF", 1),
-(2, 'Heagelin', 'Marc', 'marc.haegelin@gmail.com',false, "FFFFF", 1),
+(2, 'Haegelin', 'Marc', 'marc.haegelin@gmail.com',false, "FFFFF", 1),
 (3, 'Sagayaradjou', 'Davy', 'davy.sagayaradjou@gmail.c',false, "FFFFF",1),
 (4, 'Nom1', 'Prenom1', 'prenom1.nom1@gmail.com',false, "FFFFF", 2),
 (5, 'Nom2', 'Prenom2', 'prenom2.nom2@gmail.com',false, "FFFFF", 2),
@@ -178,7 +178,7 @@ INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGr
 
 
 INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
-(1, 'Cedric', 'Bastoul', 'toto', 'email', 'cb', false, 'EFZTREF'),
+(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', false, 'EFZTREF'),
 (2, 'Philippe', 'Clauss', 'toto', `email`, `username`, false, 'EFZTREF'),
 (3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
 (4, 'Stella', 'Marc', 'toto', `email`, `username`, false, 'EFZTREF'),
