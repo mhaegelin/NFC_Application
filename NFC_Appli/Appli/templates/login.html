@@ -1,18 +1,90 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Login</title>
-</head>
-<body>
-  <header>
-      <h1><center>Veuillez vous identifier</center></h1>
-      <h2>Login</h2>
-      <form method="post" action="/Appli/accueil/">
-		{% csrf_token %}
-		{{ formulaire.as_p }}
-      <button type="submit">Login</button>
-	  </form>
-  </header>
-</body>
+	<head>
+		{% load static %}
+		<title>Application eLOG</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="{% static "assets/css/main.css" %}"/>
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body>
+
+		<!-- Sidebar -->
+			<section id="sidebar">
+				<div class="inner">
+					<nav>
+						<ul>
+							<li><a href="#intro">Bienvenue</a></li>
+							<li><a href="#one">LogIn</a></li>
+						</ul>
+					</nav>
+				</div>
+			</section>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Intro -->
+					<section id="intro" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">
+							<h1>eLOG</h1>
+							<p>Bienvenue dans notre application de feuille de présence eLOG</p>
+						</div>
+					</section>
+
+				<!-- One -->
+					<section id="one" class="wrapper style1 fade-up">
+						<div class="inner">
+							<h2>Log In</h2>
+							<p>Pour vous identifier, veuillez entrer votre nom d'utilisateur et votre mot de passe dans le formulaire ci-dessous.</p>
+							<div class="split style1">
+								<section>
+									<form method="post" action="/Appli/accueil/">
+										{% csrf_token %}
+										<div class="field">
+											<label for="name">Nom d'utilisateur</label>
+											<input type="text" name="name" id="name" />
+										</div>
+										<div class="field">
+											<label for="passwd">Mot de passe</label>
+											<input type="password" name="passwd" id="passwd" />
+										</div>
+										<ul class="actions" align="right">
+											<li><a href="" class="button submit">Connexion</a></li>
+										</ul>
+									</form>
+								</section>
+								
+							</div>
+						</div>
+					</section>
+
+			</div>
+		<!-- Footer -->
+			<footer id="footer" class="wrapper style1-alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src=" {% static "assets/js/jquery.min.js" %}"></script>
+			<script src=" {% static "assets/js/jquery.scrollex.min.js" %}"></script>
+			<script src=" {% static "assets/js/jquery.scrolly.min.js" %}"></script>
+			<script src=" {% static "assets/js/skel.min.js" %}"></script>
+			<script src=" {% static "assets/js/util.js" %}"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="{% static "assets/js/main.js" %}"></script>
+
+	</body>
 </html>

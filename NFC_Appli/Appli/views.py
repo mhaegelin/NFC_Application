@@ -2,15 +2,10 @@ from django.shortcuts import render
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.contrib.auth import authenticate, login, logout
 from django import forms
 from django.template import loader
 from Appli.models import *
-from django.contrib.auth.models import User
-
-class LoginForm(forms.Form):
-    Username = forms.CharField(label='Username', max_length=100)
-    Password = forms.CharField(label='Password', max_length=100, widget=forms.PasswordInput)
+from django.core.exceptions import ObjectDoesNotExist
 
 class AddUser(forms.Form):
     Username = forms.CharField(label='Username', max_length=100)
@@ -25,22 +20,26 @@ def hello(request):
     return HttpResponse("Hello, world. You're at the Appli index.")
 
 def accueil(request):
+    import hashlib
     #Verifier que l'utilisateur existe
-    username = request.POST.get('Username', '')
-    password = request.POST.get('Password', '')
-    user = authenticate(username = username, password = password)
-    if user is not None:
-	if user.is_superuser == 1: #Administrateur
-	        login(request, user)
-		util = AddUser()
-	        return render(request, 'accueil.html', {'formulaire' : util})
+    uname = request.POST.get('name', '')
+    upass = request.POST.get('passwd', '')
+    hash_object = hashlib.sha1(upass)
+    hex_dig = hash_object.hexdigest()
+    try:
+        user = Utilisateur.objects.get(username=uname, password=hex_dig)
+    except ObjectDoesNotExist:
+        user = None
+    if user is not None: #Utilisateur reconnu
+	if user.issuperuser == 1: #Administrateur
+		return render(request, 'accueil.html', {'user' : user})
 	else: #Non-administrateur
-		login(request, user)
 		return redirect('fiche')
+        
     else:
         return HttpResponse("Login ou mot de passe incorrect <a href=\"/Appli/\">Reessayer</a>")
 
-def addutil(request):
+"""def addutil(request):
     username = request.POST.get('Username', '')
     password = request.POST.get('Password', '')
     email = request.POST.get('Mail', '')
@@ -54,15 +53,13 @@ def addutil(request):
     utilisateur.last_name = lastname
     utilisateur.save()
     return render(request, 'accueil.html', {'formulaire' : util})
-
+"""
 def EcranLogin(request):
-    form = LoginForm()
-    return render(request, 'login.html', {'formulaire' : form })
+    return render(request, "login.html")
 
 def log_out(request):
-	logout(request)
 	return redirect('login')
-
+"""
 def fiche(request):
 	#Il correspondra a l'utilisateur authentifie.
 	user = request.user
@@ -84,4 +81,4 @@ def validated(request): #Cette vue recupere la liste des etudiants coches, et me
 		
 def test(request):
 	return render(request, "test.html")
-
+"""

@@ -1,19 +1,147 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Login</title>
-</head>
-<body>
-  <header>
-	<h1><center>Bonjour {{ user.username }}!</center></h1>
-<a href="{% url 'logout' %}">logout</a>
-<p>
-<form method="post" action="/Appli/accueil/addutil">
-		{% csrf_token %}
-		{{ formulaire.as_p }}
-<button type="submit">Ajouter</button>
-</form>
-</header>
-</body>
+	<head>
+		{% load static %}
+		<title>Application eLOG</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="{% static "assets/css/main.css" %}"/>
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body>
+
+		<!-- Sidebar -->
+			<section id="sidebar">
+				<div class="inner">
+					<nav>
+						<ul>
+							<li><a href="#intro">Bonjour</a></li>
+							<li><a href="#one">Ajouter Utilisateur</a></li>
+							<li><a href="#two">Ajouter Etudiant</a></li>
+							<li><a href="#three">Ajouter Cours</a></li>
+						</ul>
+					</nav>
+				</div>
+			</section>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Intro -->
+					<section id="intro" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">
+							<h1>eLOG</h1>
+							<p>Bonjour {{ user.first_name }} {{ user.last_name }}!</p>
+							<p>Vous êtes sur l'interface administrateur de eLOG.</p>
+						</div>
+					</section>
+
+				<!-- One -->
+					<section id="one" class="wrapper style3 fullscreen fade-up">
+						<div class="inner">
+							<h2>Ajouter utilisateur</h2>
+							<p>Veuillez remplir le formulaire ci-dessous pour ajouter un nouvel utilisateur :</p>
+							<div class="split style1">
+								<section>
+									<form method="post" action="/Appli/accueil/">
+										{% csrf_token %}
+										<div class="field">
+											<label for="name">Nom d'utilisateur</label>
+											<input type="text" name="name" id="name" />
+										</div>
+										<div class="field">
+											<label for="passwd">Mot de passe</label>
+											<input type="password" name="passwd" id="passwd" />
+										</div>
+										<ul class="actions" align="right">
+											<li><a href="" class="button submit">Ajouter</a></li>
+										</ul>
+									</form>
+								</section>
+								
+							</div>
+						</div>
+					</section>
+				<!-- Two -->
+					<section id="two" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">
+							<h2>Ajouter etudiant</h2>
+							<p>Veuillez remplir le formulaire ci-dessous pour ajouter un nouvel etudiant :</p>
+							<div class="split style1">
+								<section>
+									<form method="post" action="/Appli/accueil/">
+										{% csrf_token %}
+										<div class="field">
+											<label for="name">Nom d'utilisateur</label>
+											<input type="text" name="name" id="name" />
+										</div>
+										<div class="field">
+											<label for="passwd">Mot de passe</label>
+											<input type="password" name="passwd" id="passwd" />
+										</div>
+										<ul class="actions" align="right">
+											<li><a href="" class="button submit">Ajouter</a></li>
+										</ul>
+									</form>
+								</section>
+								
+							</div>
+						</div>
+					</section>
+
+				<!-- Three -->
+					<section id="three" class="wrapper style3 fullscreen fade-up">
+						<div class="inner">
+							<h2>Ajouter Cours</h2>
+							<p>Veuillez remplir le formulaire suivant pour ajouter un cours :</p>
+							<div class="split style1">
+								<section>
+									<form method="post" action="#">
+										<div class="field half first">
+											<label for="name">Name</label>
+											<input type="text" name="name" id="name" />
+										</div>
+										<div class="field half">
+											<label for="email">Email</label>
+											<input type="text" name="email" id="email" />
+										</div>
+										<div class="field">
+											<label for="message">Message</label>
+											<textarea name="message" id="message" rows="5"></textarea>
+										</div>
+										<ul class="actions" align="right">
+											<li><a href="" class="button submit">Ajouter</a></li>
+										</ul>
+									</form>
+								</section>
+							</div>
+						</div>
+					</section>
+			</div>
+		<!-- Footer -->
+			<footer id="footer" class="wrapper style1-alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src=" {% static "assets/js/jquery.min.js" %}"></script>
+			<script src=" {% static "assets/js/jquery.scrollex.min.js" %}"></script>
+			<script src=" {% static "assets/js/jquery.scrolly.min.js" %}"></script>
+			<script src=" {% static "assets/js/skel.min.js" %}"></script>
+			<script src=" {% static "assets/js/util.js" %}"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="{% static "assets/js/main.js" %}"></script>
+
+	</body>
 </html>
