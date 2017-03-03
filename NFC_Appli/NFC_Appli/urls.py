@@ -16,10 +16,12 @@ Including another URLconf
 from django.conf.urls import url
 from django.conf.urls import include
 from django.views.generic.base import TemplateView
+from . import views
 
 
 urlpatterns = [
-    url(r'^Appli/', include('Appli.urls')),
+    url(r'^$', views.redirection, name="redirection"),
+	url(r'Appli/', include ('Appli.urls')),
 ]
 
 
