@@ -3,6 +3,20 @@
 #------------------------------------------------------------
 
 #------------------------------------------------------------
+#		 Dropping tables.
+#------------------------------------------------------------
+
+DROP IF EXISTS Cours;
+DROP IF EXISTS Utilisateur;
+DROP IF EXISTS Groupe;
+DROP IF EXISTS Etudiant;
+DROP IF EXISTS Promotion;
+DROP IF EXISTS Fiche;
+DROP IF EXISTS enseigne;
+DROP IF EXISTS contient;
+DROP IF EXISTS appartient;
+
+#------------------------------------------------------------
 # Table: Cours
 #------------------------------------------------------------
 

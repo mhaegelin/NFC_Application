@@ -7,6 +7,9 @@ from django.template import loader
 from Appli.models import *
 from django.core.exceptions import ObjectDoesNotExist
 
+def errorPage(request, errorType):#Page regroupant toutes les erreurs de l'appli
+		return render(request, 'error.html', {'errorType' : errorType})
+
 class AddUser(forms.Form):
     Username = forms.CharField(label='Username', max_length=100)
     Password = forms.CharField(label='Password', max_length=100, widget=forms.PasswordInput)
@@ -30,14 +33,15 @@ def accueil(request):
         user = Utilisateur.objects.get(username=uname, password=hex_dig)
     except ObjectDoesNotExist:
         user = None
-    if user is not None: #Utilisateur reconnu
-	if user.issuperuser == 1: #Administrateur
+
+	if user is None: #Utilisateur non reconnu
+		return errorPage(request, "loginFail")
+
+	if user.issuperuser == 1:#Administrateur
 		return render(request, 'accueil.html', {'user' : user})
-	else: #Non-administrateur
-		return redirect('fiche')
-        
-    else:
-        return HttpResponse("Login ou mot de passe incorrect <a href=\"/Appli/\">Reessayer</a>")
+	else:#Non-administrateur
+		return redirect('fiche')    
+		
 
 """def addutil(request):
     username = request.POST.get('Username', '')
@@ -59,18 +63,23 @@ def EcranLogin(request):
 
 def log_out(request):
 	return redirect('login')
-"""
+
 def fiche(request):
-	#Il correspondra a l'utilisateur authentifie.
-	user = request.user
-	print user.id	
-	cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
+	user = request.GET.get('user')
+	if user is None:
+		return errorPage(request, 'unknownUser')
 
-	liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
-	nbEtudiant = liste_etu.count()
-	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
-	return render(request, "fiche.html", context)
+	if request.user.is_authenticated:
+		#Il correspondra a l'utilisateur authentifie.
+		user = request.user
+		print user.id	
+		cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
 
+		liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
+		nbEtudiant = liste_etu.count()
+		context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
+		return render(request, "fiche.html", context)
+"""
 def validated(request): #Cette vue recupere la liste des etudiants coches, et met a jour la fiche presompt 
 	if request.user.is_authenticated:
 		num = request.POST.get('17', '')
