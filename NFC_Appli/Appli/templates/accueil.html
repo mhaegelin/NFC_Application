@@ -14,18 +14,18 @@
 		<link rel="stylesheet" href="{% static "assets/css/main.css" %}"/>
 		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 	</head>
 	<body>
-
 		<!-- Sidebar -->
 			<section id="sidebar">
 				<div class="inner">
 					<nav>
 						<ul>
 							<li><a href="#intro">Bonjour</a></li>
-							<li><a href="#one">Ajouter Utilisateur</a></li>
-							<li><a href="#two">Ajouter Etudiant</a></li>
-							<li><a href="#three">Ajouter Cours</a></li>
+							<li><a href="#one">Gestion Utilisateurs</a></li>
+							<li><a href="#two">Gestion Etudiants</a></li>
+							<li><a href="#three">Gestion Cours</a></li>
 						</ul>
 					</nav>
 				</div>
@@ -46,22 +46,56 @@
 				<!-- One -->
 					<section id="one" class="wrapper style3 fullscreen fade-up">
 						<div class="inner">
-							<h2>Ajouter utilisateur</h2>
-							<p>Veuillez remplir le formulaire ci-dessous pour ajouter un nouvel utilisateur :</p>
+							<h2>Sélectionner un utilisateur</h2>
+							<p>Le formulaire mettra ses champs à jour automatiquement :</p>
 							<div class="split style1">
 								<section>
+									<select id="listutil">
+										<option>#NoSelection#</option>
+										{% for util in liste_util %}
+										<option>{{util.idutil}} {{ util.first_name }} {{ util.last_name }}</option>
+										{% endfor %}
+									</select>
+									<script>
+									        $("#listutil").change(function () {
+									        var utilname = $(this).val();
+										var id = utilname.split(' ');
+										$.ajax({
+											url: '/Appli/accueil/ajaxutil',
+											data: {
+											  'id': id[0]
+											},
+											dataType: 'json',
+											success: function (data) {
+											    $("#username").val(data.user_name);
+											    $("#nameutil").val(data.first_name);
+											    $("#prenomutil").val(data.last_name);
+											    $("#mailutil").val(data.mail);
+											}
+										      });
+									    });
+   	  								  </script>
 									<form method="post" action="/Appli/accueil/">
 										{% csrf_token %}
 										<div class="field">
-											<label for="name">Nom d'utilisateur</label>
-											<input type="text" name="name" id="name" />
+											<label for="username">Nom d'utilisateur</label>
+											<input type="text" name="username" id="username" />
 										</div>
 										<div class="field">
-											<label for="passwd">Mot de passe</label>
-											<input type="password" name="passwd" id="passwd" />
+											<label for="nameutil">Nom de famille</label>
+											<input type="text" name="nameutil" id="nameutil" />
+										</div>
+										<div class="field">
+											<label for="prenomutil">Prénom</label>
+											<input type="text" name="prenomutil" id="prenomutil" />
+										</div>
+										<div class="field">
+											<label for="mailutil">Email</label>
+											<input type="text" name="mailutil" id="mailutil" />
 										</div>
 										<ul class="actions" align="right">
-											<li><a href="" class="button submit">Ajouter</a></li>
+											<li><a href="" class="button submit">Enregistrer</a></li>
+											<li><a href="" class="button submit">Supprimer</a></li>
 										</ul>
 									</form>
 								</section>
@@ -72,26 +106,54 @@
 				<!-- Two -->
 					<section id="two" class="wrapper style1 fullscreen fade-up">
 						<div class="inner">
-							<h2>Ajouter etudiant</h2>
-							<p>Veuillez remplir le formulaire ci-dessous pour ajouter un nouvel etudiant :</p>
+							<h2>Selectionner un etudiant ou #NouvelEtudiant#</h2>
+							<p>Le formulaire mettra ses champs à jour automatiquement : </p>
 							<div class="split style1">
 								<section>
+									<select id="listetud">
+									<option>#NouvelEtudiant#
+									{% for etudiant in liste_etud %}
+									<option>{{etudiant.idetud}} {{ etudiant.nometud }} {{ etudiant.prenometud }}</option>
+									{% endfor %}
+									</select>
+		  							  <script>
+									        $("#listetud").change(function () {
+									        var username = $(this).val();
+										var id = username.split(' ');
+										$.ajax({
+											url: '/Appli/accueil/ajaxetud',
+											data: {
+											  'id': id[0]
+											},
+											dataType: 'json',
+											success: function (data) {
+											    $("#name").val(data.name);
+											    $("#surname").val(data.surname);
+											    $("#mail").val(data.mail);
+											}
+										      });
+									    });
+   	  								  </script>
 									<form method="post" action="/Appli/accueil/">
 										{% csrf_token %}
 										<div class="field">
-											<label for="name">Nom d'utilisateur</label>
+											<label for="name">Nom d'etudiant</label>
 											<input type="text" name="name" id="name" />
 										</div>
 										<div class="field">
-											<label for="passwd">Mot de passe</label>
-											<input type="password" name="passwd" id="passwd" />
+											<label for="prenom">Prenom etudiant</label>
+											<input type="text" name="surname" id="surname" />
+										</div>
+										<div class="field">
+											<label for="prenom">Mail etudiant</label>
+											<input type="text" name="mail" id="mail" />
 										</div>
 										<ul class="actions" align="right">
-											<li><a href="" class="button submit">Ajouter</a></li>
+											<li><a href="" class="button submit">Enregistrer</a></li>
+											<li><a href="" class="button submit">Supprimer</a></li>
 										</ul>
 									</form>
 								</section>
-								
 							</div>
 						</div>
 					</section>

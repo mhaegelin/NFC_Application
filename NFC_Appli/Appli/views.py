@@ -6,6 +6,10 @@ from django import forms
 from django.template import loader
 from Appli.models import *
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
+
+def errorPage(request, errorType):#Page regroupant toutes les erreurs de l'appli
+		return render(request, 'error.html', {'errorType' : errorType})
 
 class AddUser(forms.Form):
     Username = forms.CharField(label='Username', max_length=100)
@@ -18,6 +22,20 @@ class AddUser(forms.Form):
 
 def hello(request):
     return HttpResponse("Hello, world. You're at the Appli index.")
+
+def signup(request):
+    import hashlib
+	#Ajouter l'utilisateur
+    uname = request.POST.get('username', '')
+    mail = request.POST.get('mail', '')
+    fname = request.POST.get('first_name', '')
+    lname = request.POST.get('last_name', '')
+    upass = request.POST.get('passwd1','')
+    hash_object = hashlib.sha1(upass)
+    hex_dig = hash_object.hexdigest()
+    user = Utilisateur(username=uname, email=mail, first_name=fname, last_name=lname, password=hex_dig)
+    user.save()
+    return render(request, "login.html")
 
 def accueil(request):
     import hashlib
@@ -32,12 +50,49 @@ def accueil(request):
         user = None
     if user is not None: #Utilisateur reconnu
 	if user.issuperuser == 1: #Administrateur
-		return render(request, 'accueil.html', {'user' : user})
+		liste_utilisateurs = Utilisateur.objects.all()
+		liste_etudiants = Etudiant.objects.all()
+		liste_cours = Cours.objects.all()
+		return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours})
 	else: #Non-administrateur
 		return redirect('fiche')
-        
     else:
-        return HttpResponse("Login ou mot de passe incorrect <a href=\"/Appli/\">Reessayer</a>")
+	return errorPage(request, 'unknownUser')
+
+def ajaxetud(request):
+    idetud = request.GET.get('id', None)
+    etud = Etudiant.objects.get(idetud=idetud)
+    name = etud.nometud
+    surname = etud.prenometud
+    mail = etud.mailetud
+    data = {
+    'name': name,
+    'surname': surname,
+    'mail': mail
+    }
+    return JsonResponse(data)
+
+def ajaxutil(request):
+    idutil = request.GET.get('id', None)
+    if idutil!='#NoSelection#':
+        util = Utilisateur.objects.get(idutil=idutil)
+        uname = util.username
+        fname = util.first_name
+        lname = util.last_name
+        mail = util.email
+    else:
+        uname=''
+        fname=''
+        lname=''
+        mail=''
+    
+    data = {
+    'user_name': uname,
+    'first_name': fname,
+    'last_name': lname,
+    'mail': mail
+    }
+    return JsonResponse(data)
 
 """def addutil(request):
     username = request.POST.get('Username', '')
@@ -59,18 +114,23 @@ def EcranLogin(request):
 
 def log_out(request):
 	return redirect('login')
-"""
+
 def fiche(request):
-	#Il correspondra a l'utilisateur authentifie.
-	user = request.user
-	print user.id	
-	cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
+	user = request.GET.get('user')
+	if user is None:
+		return errorPage(request, 'unknownUser')
 
-	liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
-	nbEtudiant = liste_etu.count()
-	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
-	return render(request, "fiche.html", context)
+	if request.user.is_authenticated:
+		#Il correspondra a l'utilisateur authentifie.
+		user = request.user
+		print user.id	
+		cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
 
+		liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
+		nbEtudiant = liste_etu.count()
+		context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
+		return render(request, "fiche.html", context)
+"""
 def validated(request): #Cette vue recupere la liste des etudiants coches, et met a jour la fiche presompt 
 	if request.user.is_authenticated:
 		num = request.POST.get('17', '')
@@ -78,7 +138,7 @@ def validated(request): #Cette vue recupere la liste des etudiants coches, et me
 		return render(request, 'validated.html', {'num' : num })
 	else:
 		return HttpResponse("User inconnu")
-		
+"""	
 def test(request):
 	return render(request, "test.html")
-"""
+
