@@ -1,3 +1,6 @@
+# This Python file uses the following encoding: utf-8
+import os, sys
+
 from django.shortcuts import render
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
@@ -8,8 +11,8 @@ from Appli.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 
-def errorPage(request, errorType):#Page regroupant toutes les erreurs de l'appli
-		return render(request, 'error.html', {'errorType' : errorType})
+def errorPage(request, errorMessage):#Page regroupant toutes les erreurs de l'appli
+		return render(request, 'error.html', {'errorMessage' : errorMessage})
 
 class AddUser(forms.Form):
     Username = forms.CharField(label='Username', max_length=100)
@@ -49,15 +52,15 @@ def accueil(request):
     except ObjectDoesNotExist:
         user = None
     if user is not None: #Utilisateur reconnu
-	if user.issuperuser == 1: #Administrateur
-		liste_utilisateurs = Utilisateur.objects.all()
-		liste_etudiants = Etudiant.objects.all()
-		liste_cours = Cours.objects.all()
-		return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours})
-	else: #Non-administrateur
-		return redirect('fiche')
+		if user.issuperuser == 1: #Scolarite (Administrateur)
+			liste_utilisateurs = Utilisateur.objects.all()
+			liste_etudiants = Etudiant.objects.all()
+			liste_cours = Cours.objects.all()
+			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours})
+		else: #Professeur (Non-administrateur)
+			return redirect('fiche')
     else:
-	return errorPage(request, 'unknownUser')
+	return errorPage(request, 'Utilisateur inconnu.')
 
 def ajaxetud(request):
     idetud = request.GET.get('id', None)
@@ -118,7 +121,7 @@ def log_out(request):
 def fiche(request):
 	user = request.GET.get('user')
 	if user is None:
-		return errorPage(request, 'unknownUser')
+		return errorPage(request, 'Opération non autorisée.')
 
 	if request.user.is_authenticated:
 		#Il correspondra a l'utilisateur authentifie.
