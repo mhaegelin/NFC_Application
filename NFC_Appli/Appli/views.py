@@ -7,6 +7,7 @@ from django.template import loader
 from Appli.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
+from django.core.urlresolvers import reverse
 
 def errorPage(request, errorType):#Page regroupant toutes les erreurs de l'appli
 		return render(request, 'error.html', {'errorType' : errorType})
@@ -116,7 +117,7 @@ def log_out(request):
 	return redirect('login')
 
 def fiche(request):
-	user = request.GET.get('user')
+	user = request.POST.get('user')
 	if user is None:
 		return errorPage(request, 'unknownUser')
 
@@ -130,6 +131,24 @@ def fiche(request):
 		nbEtudiant = liste_etu.count()
 		context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
 		return render(request, "fiche.html", context)
+
+def trace(request):
+    trace_NFC = request.GET.get('traceNFC')
+    if trace_NFC is not None:
+        import time
+	#print time.strftime('%d/%m/%y %H:%M',time.localtime())
+	hour = time.strftime('%H', time.localtime())
+	#verifier que nous ne sommes pas dans une periode creuse
+	if hour < 5 or hour >18:
+	    return errorPage(request, 'Could not reach server. Try again later.')
+	#heures non-creuses
+	etud = Etudiant.objects.get(tracenfc=trace_NFC)
+	etud.hasbadged = 1
+	etud.save()
+
+    return errorPage(request, 'Unauthorized operation.')
+    
+
 """
 def validated(request): #Cette vue recupere la liste des etudiants coches, et met a jour la fiche presompt 
 	if request.user.is_authenticated:
@@ -140,5 +159,7 @@ def validated(request): #Cette vue recupere la liste des etudiants coches, et me
 		return HttpResponse("User inconnu")
 """	
 def test(request):
-	return render(request, "test.html")
+    toto = 'FFFFA'
+    url = reverse('traceNFC', args={'traceNFC' : toto})
+    return HttpResponseRedirect(url)
 
