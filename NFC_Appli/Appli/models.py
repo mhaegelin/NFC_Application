@@ -93,7 +93,7 @@ class Contient(models.Model):
 class Enseigne(models.Model):
     nomsalle = models.CharField(db_column='NomSalle', max_length=25, blank=True, null=True)  # Field name made lowercase.
     idcours = models.ForeignKey(Cours, models.DO_NOTHING, db_column='IDCours')  # Field name made lowercase.
-    idutil = models.ForeignKey(Utilisateur, models.DO_NOTHING, db_column='idUtil')  # Field name made lowercase.
+    idutil = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, db_column='idUtil')  # Field name made lowercase.
     idfiche = models.ForeignKey(Fiche, models.DO_NOTHING, db_column='IDFiche')  # Field name made lowercase.
 
     class Meta:

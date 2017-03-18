@@ -151,6 +151,22 @@ def trace(request):
 
     return errorPage(request, 'Unauthorized operation.')
     
+def deleteuser(request):
+    idutil = request.GET.get('id', None)
+    util = Utilisateur.objects.get(idutil=idutil)
+    util.delete()
+    empty_data={}
+    return JsonResponse(empty_data)
+
+def changeuser(request):
+    idutil = request.GET.get('id', None)
+    util = Utilisateur.objects.get(idutil=idutil)
+    util.delete()
+    data = {
+        'listeutil' : '',
+    }
+    return JsonResponse(data)
+
 
 """
 def validated(request): #Cette vue recupere la liste des etudiants coches, et met a jour la fiche presompt 
@@ -165,4 +181,3 @@ def test(request):
     toto = 'FFFFA'
     url = reverse('traceNFC', args={'traceNFC' : toto})
     return HttpResponseRedirect(url)
-

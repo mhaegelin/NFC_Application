@@ -51,57 +51,159 @@
 							<div class="split style1">
 								<section>
 									<select id="listutil">
-										<option>#NoSelection#</option>
+										<option value="default">#NoSelection#</option>
 										{% for util in liste_util %}
-										<option>{{util.idutil}} {{ util.first_name }} {{ util.last_name }}</option>
+										<option value="{{ util.idutil }}">{{util.idutil}} {{ util.first_name }} {{ util.last_name }}</option>
 										{% endfor %}
 									</select>
-									<script>
-									        $("#listutil").change(function () {
-									        var utilname = $(this).val();
-										var id = utilname.split(' ');
-										$.ajax({
-											url: '/Appli/accueil/ajaxutil',
-											data: {
-											  'id': id[0]
-											},
-											dataType: 'json',
-											success: function (data) {
-											    $("#username").val(data.user_name);
-											    $("#nameutil").val(data.first_name);
-											    $("#prenomutil").val(data.last_name);
-											    $("#mailutil").val(data.mail);
-											}
-										      });
-									    });
-   	  								  </script>
-									<form method="post" action="/Appli/accueil/">
+									<ul class="actions" align="right">
+											<li><a class="button" onClick="display_user_form();empty_data();action_ajouter();" name="add_user" id="add_user">Ajouter</a></li>
+											<li><a class="button special disabled" onClick="display_user_form();load_data();action_modify();" name="change_user" id="change_user">Modifier</a></li>
+											<li><a class="button special disabled" onClick="del_user();" name="drop_user" id="drop_user">Supprimer</a></li>
+									</ul>
+   	  								 <div id="user_form" hidden="true">
+									 <form method="post" action="/Appli/accueil/">
 										{% csrf_token %}
-										<div class="field">
-											<label for="username">Nom d'utilisateur</label>
-											<input type="text" name="username" id="username" />
-										</div>
-										<div class="field">
-											<label for="nameutil">Nom de famille</label>
-											<input type="text" name="nameutil" id="nameutil" />
-										</div>
+										<div class="split">
+										<section>
 										<div class="field">
 											<label for="prenomutil">Prénom</label>
 											<input type="text" name="prenomutil" id="prenomutil" />
 										</div>
+										</section>
+										<section>
+										<div class="field">
+											<label for="nameutil">Nom de famille</label>
+											<input type="text" name="nameutil" id="nameutil" />
+										</div>
+										</section>
+										</div>
+										<div class="split">
+										<section>
+										<div class="field">
+											<label for="username">Nom d'utilisateur</label>
+											<input type="text" name="username" id="username" />
+										</div>
+										</section>
+										<section>
 										<div class="field">
 											<label for="mailutil">Email</label>
 											<input type="text" name="mailutil" id="mailutil" />
 										</div>
+										</section>
+										</div>
 										<ul class="actions" align="right">
-											<li><a href="" class="button submit">Enregistrer</a></li>
-											<li><a href="" class="button submit">Supprimer</a></li>
+											<li><a onClick="" class="button" id="validation">Valider</a></li>
+											<li><a class="button" onClick="hide_user_form();" id="annulation">Annuler</a></li>
 										</ul>
 									</form>
-								</section>
-								
+									</div>
+									</section>
 							</div>
 						</div>
+						<script>
+						$("#listutil").change(function() {
+						var utilname = $(this).val();
+						
+						var id = utilname.split(' ');
+						
+						if (id!='#NoSelection#') {
+						$("#change_user").removeClass('button special disabled submit').addClass('button');
+						$("#drop_user").removeClass('button special disabled submit').addClass('button');
+						}
+						else {
+						$("#change_user").removeClass('button').addClass('button special disabled submit');
+						$("#drop_user").removeClass('button').addClass('button special disabled submit');
+						};
+						});
+						
+						function display_user_form() {
+						$("#user_form").show();
+						$("#add_user").removeClass('button').addClass('button special disabled');
+						$("#change_user").removeClass('button submit').addClass('button special disabled');
+						$("#drop_user").removeClass('button submit').addClass('button special disabled');
+						$("#listutil").prop('disabled', true);
+						};
+						
+						function hide_user_form() {
+						$("#user_form").hide();
+						$("#add_user").removeClass('button special disabled').addClass('button');
+						$("#listutil").prop('disabled', false);
+						};
+						
+						function load_data() {
+							var utilname = $("#listutil").val();
+							var id = utilname.split(' ');
+							
+							$.ajax({
+							url: '/Appli/accueil/ajaxutil',
+							data: {
+							'id': id[0]
+							},
+							dataType: 'json',
+							success: function (data) {
+							$("#username").val(data.user_name);
+							$("#prenomutil").val(data.first_name);
+							$("#nameutil").val(data.last_name);
+							$("#mailutil").val(data.mail);
+							}
+							});
+						}
+						
+						function empty_data() {
+							$("#username").val('');
+							$("#prenomutil").val('');
+							$("#nameutil").val('');
+							$("#mailutil").val('');
+						}
+						
+						function action_ajouter() {
+							//change l'action du bouton valider suite à clic sur ajout
+							$("#validation").unbind('click');
+							$("#annulation").unbind('click');
+							$("#listutil").val('default').change();
+							$("#validation").bind('click', function(){
+									//set your method - validation
+									//alert('Validation -- ajout');
+								});
+							$("#annulation").bind('click', function(){
+								//set your method - validation
+								//alert('Annulation -- ajout');
+								$("#listutil").val('default').change();
+							});
+						}
+						
+						function action_modify() {
+							//change l'action du bouton valider suite à clic sur modifier
+							$("#validation").unbind('click');
+							$("#annulation").unbind('click');
+							$("#validation").bind('click', function(){
+									//set your method - validation
+									alert('Validation -- modifier');
+								});
+							$("#annulation").bind('click', function(){
+								//set your method - validation
+								alert('Annulation -- modifier');
+							});
+						}
+						
+						function del_user() {
+								var username = $("#listutil").val();
+								var id = username.split(' ');
+								alert(id[0]);
+								$.ajax({
+									url: '/Appli/accueil/deleteuser',
+									data: {
+									'id': id[0]
+									},
+									dataType: 'json',
+									success: function (data) {
+									//Supprimer la donnee de la liste select/option
+									$("#listutil option[value='"+id[0]+"']").remove();
+									}
+								});
+						}
+					</script>
 					</section>
 				<!-- Two -->
 					<section id="two" class="wrapper style1 fullscreen fade-up">
