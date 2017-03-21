@@ -62,7 +62,7 @@ class Utilisateur(models.Model):
     idutil = models.AutoField(db_column='idUtil', primary_key=True)  # Field name made lowercase.
     first_name = models.CharField(max_length=25, blank=True, null=True)
     last_name = models.CharField(max_length=25, blank=True, null=True)
-    password = models.CharField(max_length=50, blank=True, null=True)
+    password = models.CharField(max_length=75, blank=True, null=True)
     email = models.CharField(max_length=25, blank=True, null=True)
     username = models.CharField(max_length=25, blank=True, null=True)
     issuperuser = models.IntegerField(db_column='isSuperuser', blank=True, null=True)  # Field name made lowercase.

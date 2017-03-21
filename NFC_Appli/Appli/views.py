@@ -61,7 +61,7 @@ def accueil(request):
 		else: #Professeur (Non-administrateur)
 			return redirect('fiche')
     else:
-	return errorPage(request, 'Utilisateur inconnu.')
+		return errorPage(request, 'Utilisateur inconnu.')
 
 def ajaxetud(request):
     idetud = request.GET.get('id', None)
@@ -177,6 +177,7 @@ def validated(request): #Cette vue recupere la liste des etudiants coches, et me
 	else:
 		return HttpResponse("User inconnu")
 """	
+
 def test(request):
     toto = 'FFFFA'
     url = reverse('traceNFC', args={'traceNFC' : toto})

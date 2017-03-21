@@ -54,7 +54,7 @@ INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGr
 
 
 INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
-(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', false, 'EFZTREF'),
+(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', true, 'EFZTREF'),
 (2, 'Philippe', 'Clauss', 'toto', `email`, `username`, false, 'EFZTREF'),
 (3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
 (4, 'Stella', 'Marc', 'toto', `email`, `username`, false, 'EFZTREF'),
