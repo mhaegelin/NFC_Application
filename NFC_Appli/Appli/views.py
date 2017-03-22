@@ -11,6 +11,7 @@ from Appli.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
+import datetime
 
 def errorPage(request, errorMessage):#Page regroupant toutes les erreurs de l'appli
 		return render(request, 'error.html', {'errorMessage' : errorMessage})
@@ -119,6 +120,7 @@ def EcranLogin(request):
 def log_out(request):
 	return redirect('login')
 
+#NON TESTE
 def fiche(request):
 	user = request.POST.get('user')
 	if user is None:
@@ -127,14 +129,27 @@ def fiche(request):
 	if request.user.is_authenticated:
 		#Il correspondra a l'utilisateur authentifie.
 		user = request.user
-		print user.id	
+		print user.id
+		#On récupère la date et heure actuelle
+		date = datetime.datetime.now()
+		#On récupère le cours correspondant au professeur concerné ET
+		#correspondant à la date et heure actuelle
+		cours = Cours.objects.filter(idcours__enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
+		#On récupère la fiche présomptive du cours actuellement donné par le professeur concerné
+		fiche = Fiche.objects.filter(idfiche__enseigne__idutil = user.idutil, idfiche__enseigne__idcours = cours.idcours)
+		#On récupère la liste des étudiants correspondants à la fiche présomptive
+		liste_etu = Etudiant.objects.filter(idetud__contient__idfiche = fiche.idfiche)
+		nbEtudiant = liste_etu.count()
+		context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
+		return render(request, "fiche.html", context)
+"""
 		cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
-
 		liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
 		nbEtudiant = liste_etu.count()
 		context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
 		return render(request, "fiche.html", context)
-
+"""
+		
 def trace(request):
     trace_NFC = request.GET.get('traceNFC')
     if trace_NFC is not None:
