@@ -60,7 +60,7 @@ def accueil(request):
 			liste_cours = Cours.objects.all()
 			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours})
 		else: #Professeur (Non-administrateur)
-			return redirect('fiche')
+			return redirect('fiche', {'user' : user})
     else:
 		return errorPage(request, 'Utilisateur inconnu.')
 
@@ -122,26 +122,27 @@ def log_out(request):
 
 #NON TESTE
 def fiche(request):
-	user = request.POST.get('user')
+	#DEBUG, on selectionne Philippe Clauss
+	user = Utilisateur.objects.get(pk=2)
 	if user is None:
 		return errorPage(request, 'Opération non autorisée.')
-
-	if request.user.is_authenticated:
-		#Il correspondra a l'utilisateur authentifie.
-		user = request.user
-		print user.id
-		#On récupère la date et heure actuelle
-		date = datetime.datetime.now()
-		#On récupère le cours correspondant au professeur concerné ET
-		#correspondant à la date et heure actuelle
-		cours = Cours.objects.filter(idcours__enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
-		#On récupère la fiche présomptive du cours actuellement donné par le professeur concerné
-		fiche = Fiche.objects.filter(idfiche__enseigne__idutil = user.idutil, idfiche__enseigne__idcours = cours.idcours)
-		#On récupère la liste des étudiants correspondants à la fiche présomptive
-		liste_etu = Etudiant.objects.filter(idetud__contient__idfiche = fiche.idfiche)
-		nbEtudiant = liste_etu.count()
-		context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
-		return render(request, "fiche.html", context)
+	#On récupère la date et heure actuelle
+	date = datetime.datetime.now()
+	print date
+	#On récupère le cours correspondant au professeur concerné ET
+	#correspondant à la date et heure actuelle
+	#cours = Cours.objects.filter(enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
+	#DEBUG
+	cours = Cours.objects.filter(enseigne__idutil = user.idutil)	
+	print cours[0].idcours
+	#On récupère la fiche présomptive du cours actuellement donné par le professeur concerné
+	fiche = Fiche.objects.filter(enseigne__idutil = user.idutil, enseigne__idcours = cours[0].idcours)
+	print fiche[0].idfiche
+	#On récupère la liste des étudiants correspondants à la fiche présomptive
+	liste_etu = Etudiant.objects.filter(contient__idfiche = fiche[0].idfiche)
+	nbEtudiant = liste_etu.count()
+	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
+	return render(request, "fiche.html", context)
 """
 		cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
 		liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
@@ -183,15 +184,10 @@ def changeuser(request):
     return JsonResponse(data)
 
 
-"""
-def validated(request): #Cette vue recupere la liste des etudiants coches, et met a jour la fiche presompt 
-	if request.user.is_authenticated:
-		num = request.POST.get('17', '')
-		print num
-		return render(request, 'validated.html', {'num' : num })
-	else:
-		return HttpResponse("User inconnu")
-"""	
+def validated(request): #Cette vue permet d'effectuer les traitements suite à la validation de la fiche
+	#DEBUG, on selectionne Philippe Clauss
+	user = Utilisateur.objects.get(pk=2)
+	return render(request, 'validated.html', {'user' : user})
 
 def test(request):
     toto = 'FFFFA'
