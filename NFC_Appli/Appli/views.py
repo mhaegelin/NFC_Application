@@ -122,22 +122,24 @@ def log_out(request):
 
 #NON TESTE
 def fiche(request):
-	#DEBUG, on selectionne Philippe Clauss
+	###DEBUG, on selectionne Philippe Clauss
 	user = Utilisateur.objects.get(pk=2)
+	###
+	
 	if user is None:
 		return errorPage(request, 'Opération non autorisée.')
 	#On récupère la date et heure actuelle
 	date = datetime.datetime.now()
-	print date
 	#On récupère le cours correspondant au professeur concerné ET
 	#correspondant à la date et heure actuelle
 	#cours = Cours.objects.filter(enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
-	#DEBUG
-	cours = Cours.objects.filter(enseigne__idutil = user.idutil)	
-	print cours[0].idcours
+
+	###DEBUG
+	cours = Cours.objects.filter(enseigne__idutil = user.idutil)
+	###	
+
 	#On récupère la fiche présomptive du cours actuellement donné par le professeur concerné
 	fiche = Fiche.objects.filter(enseigne__idutil = user.idutil, enseigne__idcours = cours[0].idcours)
-	print fiche[0].idfiche
 	#On récupère la liste des étudiants correspondants à la fiche présomptive
 	liste_etu = Etudiant.objects.filter(contient__idfiche = fiche[0].idfiche)
 	nbEtudiant = liste_etu.count()
@@ -185,8 +187,10 @@ def changeuser(request):
 
 
 def validated(request): #Cette vue permet d'effectuer les traitements suite à la validation de la fiche
-	#DEBUG, on selectionne Philippe Clauss
+	
+	###DEBUG, on selectionne Philippe Clauss
 	user = Utilisateur.objects.get(pk=2)
+	###
 	return render(request, 'validated.html', {'user' : user})
 
 def test(request):

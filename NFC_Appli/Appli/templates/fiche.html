@@ -16,7 +16,6 @@
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
 	</head>
 	<body>
-
 		<!-- Sidebar -->
 			<section id="sidebar">
 				<div class="inner">
@@ -36,6 +35,7 @@
 							<hr/>
 							NOMBRE D'ETUDIANTS :<strong> {{ nbEtudiant}} </strong><br/><br/><br/>
 							<form action="{% url 'validated' %}" method="post">
+							{% csrf_token %}
 								<div class="table-wrapper">
 									<table>
 										<thead>
@@ -49,8 +49,8 @@
 										{% for etu in list_etu %}
 											<tr>
 												<td>
-													{% csrf_token %}
-													<input id="id_{{etu.idetud}}" name="{{etu.idetud}}" type="checkbox">
+													<input type="checkbox" id="id_{{etu.idetud}}" checked>
+													<label for="id_{{etu.idetud}}"></label>
 												</td>
 												<td>
 													{{ etu.nometud }}
