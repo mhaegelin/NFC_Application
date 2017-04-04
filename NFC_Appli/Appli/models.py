@@ -30,6 +30,13 @@ class Etudiant(models.Model):
     tracenfc = models.CharField(db_column='TraceNFC', max_length=25, blank=True, null=True)  # Field name made lowercase.
     idpromo = models.ForeignKey('Promotion', models.DO_NOTHING, db_column='IDPromo', blank=True, null=True)  # Field name made lowercase.
 
+    def as_json(self):
+        return dict(
+            input_idetud=self.idetud,
+            input_prenometud=self.prenometud,
+            input_nometud=self.nometud
+            )
+
     class Meta:
         db_table = 'Etudiant'
 

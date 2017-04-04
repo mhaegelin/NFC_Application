@@ -58,11 +58,23 @@ def accueil(request):
 			liste_utilisateurs = Utilisateur.objects.all()
 			liste_etudiants = Etudiant.objects.all()
 			liste_cours = Cours.objects.all()
-			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours})
+			liste_promo = Promotion.objects.all()
+			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo})
 		else: #Professeur (Non-administrateur)
 			return redirect('fiche', {'user' : user})
     else:
 		return errorPage(request, 'Utilisateur inconnu.')
+
+def ajaxlistetud(request):
+	import json
+	promo = request.GET.get('id', None)
+	listetud = Etudiant.objects.filter(idpromo=promo)
+	liste = [e.as_json() for e in listetud]
+	data = {
+		'listetud': json.dumps(liste)
+	}	
+	return JsonResponse(data)
+
 
 def ajaxetud(request):
     idetud = request.GET.get('id', None)
@@ -154,19 +166,24 @@ def fiche(request):
 """
 		
 def trace(request):
-    trace_NFC = request.GET.get('traceNFC')
-    if trace_NFC is not None:
-        import time
-	#print time.strftime('%d/%m/%y %H:%M',time.localtime())
-	hour = time.strftime('%H', time.localtime())
-	#verifier que nous ne sommes pas dans une periode creuse
-	if hour < 5 or hour >18:
-	    return errorPage(request, 'Could not reach server. Try again later.')
-	#heures non-creuses
-	etud = Etudiant.objects.get(tracenfc=trace_NFC)
-	etud.hasbadged = 1
-	etud.save()
+    if request.method == 'POST':
+        trace_NFC = request.POST.get('traceNFC')
 
+        if trace_NFC is not None:
+            import time
+            #print trace_NFC
+	        #print time.strftime('%d/%m/%y %H:%M',time.localtime())
+            hour = int(time.strftime('%H', time.localtime()))
+	        #verifier que nous ne sommes pas dans une periode creuse
+	        #Comment changer le fuseau horaire?
+	        
+            if hour < 5 or hour > 18:
+				return errorPage(request, 'Could not reach server. Try again later.')
+				
+            etud = Etudiant.objects.get(tracenfc=trace_NFC)
+            etud.hasbadged = 1
+            etud.save()
+	
     return errorPage(request, 'Unauthorized operation.')
     
 def deleteuser(request):
