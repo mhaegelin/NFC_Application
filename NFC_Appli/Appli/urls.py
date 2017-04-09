@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^signup/$', views.signup, name='signup'),
     url(r'^accueil/ajaxetud$', views.ajaxetud, name='ajaxetud'),
     url(r'^accueil/ajaxutil$', views.ajaxutil, name='ajaxutil'),
+    url(r'^accueil/ajaxlistetud$', views.ajaxlistetud, name='ajaxlistetud'),
     url(r'^accueil/deleteuser$', views.deleteuser, name='deleteuser'),
     url(r'^trace$', views.trace, name='traceNFC'),
 ]
