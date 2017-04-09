@@ -15,9 +15,9 @@ INSERT INTO `Groupe` (`IDGroupe`, `IntituleGroupe`) VALUES
 
 
 INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
-(1, true),
+(1, false),
 (2, false),
-(3, true),
+(3, false),
 (4, false),
 (5, false);
 
@@ -55,17 +55,13 @@ INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGr
 
 INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
 (1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', true, 'EFZTREF'),
-(2, 'Philippe', 'Clauss', 'toto', `email`, `username`, false, 'EFZTREF'),
+(2, 'Philippe', 'Clauss', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', `email`, 'pc', false, 'EFZTREF'),
 (3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
 (4, 'Stella', 'Marc', 'toto', `email`, `username`, false, 'EFZTREF'),
 (5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, 'EFZTREF');
 
 
 INSERT INTO `contient` (`IDFiche`, `IDEtud`) VALUES
-(1, 1),
-(1, 2),
-(1, 3),
-(1, 10),
 (2, 1),
 (2, 2),
 (2, 3),
@@ -83,6 +79,9 @@ INSERT INTO `appartient` (`IDGroupe`, `IDEtud`) VALUES
 (2, 11),
 (2, 12),
 (3, 1),
+(3, 2),
+(3, 3),
+(3, 10),
 (4, 1),
 (4, 2),
 (4, 3);

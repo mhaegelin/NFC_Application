@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 import datetime
+from django.contrib import messages
 
 def errorPage(request, errorMessage):#Page regroupant toutes les erreurs de l'appli
 		return render(request, 'error.html', {'errorMessage' : errorMessage})
@@ -60,7 +61,8 @@ def accueil(request):
 			liste_cours = Cours.objects.all()
 			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours})
 		else: #Professeur (Non-administrateur)
-			return redirect('fiche', {'user' : user})
+			request.session['user'] = user.idutil
+			return redirect('fiche')
     else:
 		return errorPage(request, 'Utilisateur inconnu.')
 
@@ -120,10 +122,11 @@ def EcranLogin(request):
 def log_out(request):
 	return redirect('login')
 
-#NON TESTE
+
 def fiche(request):
 	###DEBUG, on selectionne Philippe Clauss
-	user = Utilisateur.objects.get(pk=2)
+	#user = Utilisateur.objects.get(pk=2)
+	user = request.session['user']
 	###
 	
 	if user is None:
@@ -135,13 +138,13 @@ def fiche(request):
 	#cours = Cours.objects.filter(enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
 
 	###DEBUG
-	cours = Cours.objects.filter(enseigne__idutil = user.idutil)
+	cours = Cours.objects.filter(enseigne__idutil = user)
 	###	
 
 	#On récupère la fiche présomptive du cours actuellement donné par le professeur concerné
-	fiche = Fiche.objects.filter(enseigne__idutil = user.idutil, enseigne__idcours = cours[0].idcours)
+	groupe = Groupe.objects.filter(cours__idcours = cours[0].idcours)
 	#On récupère la liste des étudiants correspondants à la fiche présomptive
-	liste_etu = Etudiant.objects.filter(contient__idfiche = fiche[0].idfiche)
+	liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe)
 	nbEtudiant = liste_etu.count()
 	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
 	return render(request, "fiche.html", context)
@@ -189,8 +192,24 @@ def changeuser(request):
 def validated(request): #Cette vue permet d'effectuer les traitements suite à la validation de la fiche
 	
 	###DEBUG, on selectionne Philippe Clauss
-	user = Utilisateur.objects.get(pk=2)
+	user = request.session['user']
+	user = Utilisateur.objects.get(idutil=user)
+	fiche = Fiche.objects.get(pk=1) # On récupère la fiche présomptive concernée par la validation fiche = request.POST.get('fiche', '')
 	###
+	
+	list_etu = request.POST.getlist('list_etu')
+	print list_etu
+	for idetudiant in list_etu:
+		etudiant = Etudiant.objects.get(idetud=idetudiant)
+		dejaPresent = Contient.objects.get(idfiche=fiche, idetud = etudiant)
+		print (dejaPresent)
+		if dejaPresent is None:
+			addtoFiche = Contient(idfiche=fiche, idetud = etudiant)
+			addtoFiche.save()
+	#On valide la fiche présomptive dans la BDD
+	if fiche.valide == 0:
+		fiche.valide = 1
+		fiche.save()
 	return render(request, 'validated.html', {'user' : user})
 
 def test(request):
