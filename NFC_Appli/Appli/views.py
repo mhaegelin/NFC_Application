@@ -14,8 +14,8 @@ from django.core.urlresolvers import reverse
 import datetime
 from django.contrib import messages
 
-def errorPage(request, errorMessage):#Page regroupant toutes les erreurs de l'appli
-		return render(request, 'error.html', {'errorMessage' : errorMessage})
+def errorPage(request, errorMessage):#Page regroupant toutes les erreurs de l'appli	
+	return render(request, 'error.html', {'errorMessage' : errorMessage})
 
 class AddUser(forms.Form):
     Username = forms.CharField(label='Username', max_length=100)
@@ -44,17 +44,18 @@ def signup(request):
     return render(request, "login.html")
 
 def accueil(request):
-    import hashlib
-    #Verifier que l'utilisateur existe
-    uname = request.POST.get('name', '')
-    upass = request.POST.get('passwd', '')
-    hash_object = hashlib.sha1(upass)
-    hex_dig = hash_object.hexdigest()
-    try:
-        user = Utilisateur.objects.get(username=uname, password=hex_dig)
-    except ObjectDoesNotExist:
-        user = None
-    if user is not None: #Utilisateur reconnu
+	import hashlib
+	#Verifier que l'utilisateur existe
+	uname = request.POST.get('name', '')
+	upass = request.POST.get('passwd', '')
+	hash_object = hashlib.sha1(upass)
+	hex_dig = hash_object.hexdigest()
+	try:
+		user = Utilisateur.objects.get(username=uname, password=hex_dig)
+	except ObjectDoesNotExist:
+		user = None
+	print user
+	if user is not None: #Utilisateur reconnu
 		if user.issuperuser == 1: #Scolarite (Administrateur)
 			liste_utilisateurs = Utilisateur.objects.all()
 			liste_etudiants = Etudiant.objects.all()
@@ -62,9 +63,10 @@ def accueil(request):
 			liste_promo = Promotion.objects.all()
 			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo})
 		else: #Professeur (Non-administrateur)
-			request.session['user'] = user.idutil
+			request.session['userid'] = user.idutil
+			request.session.set_expiry(0)
 			return redirect('fiche')
-    else:
+	else:
 		return errorPage(request, 'Utilisateur inconnu.')
 
 def ajaxlistetud(request):
@@ -129,26 +131,30 @@ def ajaxutil(request):
     return render(request, 'accueil.html', {'formulaire' : util})
 """
 def EcranLogin(request):
-    return render(request, "login.html")
+	try:
+		del request.session['userid']
+	except KeyError:
+		pass
+	return render(request, "login.html")
 
 def log_out(request):
 	return redirect('login')
 
 
 def fiche(request):
-	###DEBUG, on selectionne Philippe Clauss
-	#user = Utilisateur.objects.get(pk=2)
-	user = request.session['user']
-	###
-	
+	try:	
+		user = request.session['userid']
+	except KeyError:
+		user = None
+	print user
 	if user is None:
 		return errorPage(request, 'Opération non autorisée.')
 	#On récupère la date et heure actuelle
 	date = datetime.datetime.now()
+	
 	#On récupère le cours correspondant au professeur concerné ET
 	#correspondant à la date et heure actuelle
 	#cours = Cours.objects.filter(enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
-
 	###DEBUG
 	cours = Cours.objects.filter(enseigne__idutil = user)
 	###	
@@ -207,19 +213,22 @@ def changeuser(request):
 
 
 def validated(request): #Cette vue permet d'effectuer les traitements suite à la validation de la fiche
-	
-	###DEBUG, on selectionne Philippe Clauss
-	user = request.session['user']
+	try:	
+		user = request.session['userid']
+	except KeyError:
+		user = None
+		
+	if user is None:
+		return errorPage(request, 'Opération non autorisée.')
+	###DEBUG
 	user = Utilisateur.objects.get(idutil=user)
 	fiche = Fiche.objects.get(pk=1) # On récupère la fiche présomptive concernée par la validation fiche = request.POST.get('fiche', '')
 	###
 	
 	list_etu = request.POST.getlist('list_etu')
-	print list_etu
 	for idetudiant in list_etu:
 		etudiant = Etudiant.objects.get(idetud=idetudiant)
 		dejaPresent = Contient.objects.get(idfiche=fiche, idetud = etudiant)
-		print (dejaPresent)
 		if dejaPresent is None:
 			addtoFiche = Contient(idfiche=fiche, idetud = etudiant)
 			addtoFiche.save()
