@@ -161,8 +161,8 @@ def fiche(request):
 
 	#On récupère la fiche présomptive du cours actuellement donné par le professeur concerné
 	groupe = Groupe.objects.filter(cours__idcours = cours[0].idcours)
-	#On récupère la liste des étudiants correspondants à la fiche présomptive
-	liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe)
+	#On récupère la liste des étudiants correspondants à la fiche présomptive, on retire ceux n'ayant pas badgé
+	liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe).exclude(hasbadged = 0)
 	nbEtudiant = liste_etu.count()
 	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
 	return render(request, "fiche.html", context)
