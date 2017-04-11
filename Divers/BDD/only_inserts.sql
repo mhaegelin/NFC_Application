@@ -2,6 +2,26 @@
 #        Script MySQL.
 #------------------------------------------------------------
 
+
+#-------Declaration evenement--------------------------------
+
+SET GLOBAL event_scheduler = ON;
+
+
+CREATE EVENT RESET_MORNING
+    ON SCHEDULE EVERY 1 DAY 
+	STARTS CURRENT_DATE + INTERVAL 1 DAY + INTERVAL 6 HOUR
+    DO UPDATE Etudiant SET hasBadged = 0;
+
+CREATE EVENT RESET_AFTERNOON
+    ON SCHEDULE EVERY 1 DAY 
+	STARTS CURRENT_DATE + INTERVAL 1 DAY + INTERVAL 13 HOUR
+    DO UPDATE Etudiant SET hasBadged = 0;
+	
+#------------------------------------------------------------
+
+
+
 INSERT INTO `Promotion` (`IDPromo`, `IntitulePromo`) VALUES
 (1, 'M1 ILC'),
 (2, 'M1 ISI'),
