@@ -44,8 +44,8 @@ INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
 
 
 INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadged`, `TraceNFC`, `IDPromo`) VALUES
-(1, 'Faraux', 'Sylvein', 'sylvein.faraux@gmail.com', false, "FFFFF", 1),
-(2, 'Haegelin', 'Marc', 'marc.haegelin@gmail.com',false, "FFFFF", 1),
+(1, 'Faraux', 'Sylvein', 'sylvein.faraux@gmail.com', true, "FFFFF", 1),
+(2, 'Haegelin', 'Marc', 'marc.haegelin@gmail.com',true, "FFFFF", 1),
 (3, 'Sagayaradjou', 'Davy', 'davy.sagayaradjou@gmail.c',false, "FFFFF",1),
 (4, 'Nom1', 'Prenom1', 'prenom1.nom1@gmail.com',false, "FFFFF", 2),
 (5, 'Nom2', 'Prenom2', 'prenom2.nom2@gmail.com',false, "FFFFF", 2),

@@ -96,11 +96,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATICFILES_DIRS = (
+#STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".                                                                                                                                          
     # Always use forward slashes, even on Windows.                                                                                                                                                                   
     # Don't forget to use absolute paths, not relative paths.                                                                                                                                                        
-    PROJECT_PATH + "/Appli/static",
-)
+#    PROJECT_PATH + "/Appli/static",
+#)
+
+STATIC_ROOT = PROJECT_PATH + "/Appli/static"
 
 STATIC_URL = '/static/'

@@ -227,9 +227,11 @@ def validated(request): #Cette vue permet d'effectuer les traitements suite à l
 	
 	list_etu = request.POST.getlist('list_etu')
 	for idetudiant in list_etu:
+		print idetudiant
 		etudiant = Etudiant.objects.get(idetud=idetudiant)
-		dejaPresent = Contient.objects.get(idfiche=fiche, idetud = etudiant)
-		if dejaPresent is None:
+		try:
+			dejaPresent = Contient.objects.get(idfiche=fiche, idetud = etudiant)
+		except Contient.DoesNotExist:
 			addtoFiche = Contient(idfiche=fiche, idetud = etudiant)
 			addtoFiche.save()
 	#On valide la fiche présomptive dans la BDD

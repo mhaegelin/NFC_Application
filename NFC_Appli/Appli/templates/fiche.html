@@ -14,6 +14,8 @@
 		<link rel="stylesheet" href="{% static "assets/css/main.css" %}"/>
 		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+
 	</head>
 	<body>
 		<!-- Sidebar -->
@@ -47,7 +49,7 @@
 										</thead>									
 										<tbody>
 										{% for etu in list_etu %}
-											<tr>
+											<tr class=initial>
 												<td>
 													<input type="checkbox" id="id_{{etu.idetud}}" name="list_etu" value="{{etu.idetud}}" checked>
 													<label for="id_{{etu.idetud}}"></label>
@@ -80,6 +82,17 @@
 			</footer>
 
 		<!-- Scripts -->
+			<script>
+				$("tbody tr").click(function() {
+						$(this).toggleClass("clicked");
+						var c = $(this).find("input");
+						if (c.is(":checked")) {
+							 $(this).find("input").prop('checked', false);
+						} else {
+							 $(this).find("input").prop('checked', true);
+						}
+						});		
+			</script>
 			<script src=" {% static "assets/js/jquery.min.js" %}"></script>
 			<script src=" {% static "assets/js/jquery.scrollex.min.js" %}"></script>
 			<script src=" {% static "assets/js/jquery.scrolly.min.js" %}"></script>
