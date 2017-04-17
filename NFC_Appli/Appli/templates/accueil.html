@@ -26,6 +26,7 @@
 							<li><a href="#one">Gestion Utilisateurs</a></li>
 							<li><a href="#two">Gestion Etudiants</a></li>
 							<li><a href="#three">Gestion Groupe</a></li>
+							<li><a href="{% url 'login' %}">Déconnexion</a></li>
 						</ul>
 					</nav>
 				</div>
@@ -183,7 +184,12 @@
 									dataType: 'json',
 									success: function (data) {
 									//Ajouter la donnee ds la liste select/option
+									if (jQuery.isEmptyObject(data)){
+										alert('Nom d\'utilisateur déjà pris!');
+									}
+									else {
                                                                         $("#listutil").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
+									}
 									}
 								});
 								});
@@ -217,9 +223,14 @@
 									dataType: 'json',
 									success: function (data) {
 									//Ajouter la donnee ds la liste select/option
+									if (jQuery.isEmptyObject(data)){
+										alert('Nom d\'utilisateur déjà pris!');
+									}
+									else{
                                                                         $("#listutil option[value='"+data.id+"']").remove();
                                                                         hide_user_form();
 									$("#listutil").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
+									}
 									}
 								});
 								});

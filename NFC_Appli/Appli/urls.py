@@ -16,5 +16,6 @@ urlpatterns = [
     url(r'^accueil/deleteuser$', views.deleteuser, name='deleteuser'),
 	url(r'^accueil/adduser$', views.adduser, name='adduser'),
     url(r'^accueil/changeuser$', views.changeuser, name='changeuser'),
+    url(r'^accueil/validateAccount$', views.validateAccount, name='validateAccount'),
     url(r'^trace$', views.trace, name='traceNFC'),
 ]

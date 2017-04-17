@@ -67,7 +67,10 @@ def accueil(request):
 		else: #Professeur (Non-administrateur)
 			request.session['userid'] = user.idutil
 			request.session.set_expiry(0)
-			return redirect('fiche')
+                        if user.validated == 1:
+         		    return redirect('fiche')
+                        else:
+                            return errorPage(request, 'Compte non activé.')
 	else:
 		return errorPage(request, 'Utilisateur inconnu.')
 
@@ -123,35 +126,39 @@ def adduser(request):
     import hashlib
     from django.core.mail import send_mail
     username = request.GET.get('username', None)
-    nomutil = request.GET.get('nameutil', None)
-    prenomutil = request.GET.get('prenomutil',None)
-    mailutil = request.GET.get('mailutil',None)
-    #Mot de passe par defaut
-    upass = 'root'
-    hash_object = hashlib.sha1(upass)
-    hex_dig = hash_object.hexdigest()
-    #Generation de la validationkey
-    t = time.time()
-    key = md5.new(str(t))
-    user = Utilisateur(username=username, email=mailutil, first_name=prenomutil, last_name=nomutil, password=hex_dig, validationkey=key.hexdigest(), validated=0)
-    user.save()
-    lastuser = Utilisateur.objects.latest('idutil')
-    iduser = lastuser.idutil
-    send_mail(
+    try:
+        test = Utilisateur.objects.get(username=username)
+    except ObjectDoesNotExist:
+        nomutil = request.GET.get('nameutil', None)
+        prenomutil = request.GET.get('prenomutil',None)
+        mailutil = request.GET.get('mailutil',None)
+        #Mot de passe par defaut
+        upass = 'root'
+        hash_object = hashlib.sha1(upass)
+        hex_dig = hash_object.hexdigest()
+        #Generation de la validationkey
+        t = time.time()
+        key = md5.new(str(t))
+        user = Utilisateur(username=username, email=mailutil, first_name=prenomutil, last_name=nomutil, password=hex_dig, validationkey=key.hexdigest(), validated=0, hasbadged=0)
+        user.save()
+        lastuser = Utilisateur.objects.latest('idutil')
+        iduser = lastuser.idutil
+        send_mail(
     'eLOG Mailing Confirmation',
-    'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/?validationkey='+key.hexdigest(),
+    'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+key.hexdigest(),
     'NoReply@elog.com',
     [mailutil],
     fail_silently=False,
     )
     
-    data = {
-    'id': iduser,
-    'last_name': nomutil,
-    'first_name': prenomutil,
-    }
-    return JsonResponse(data)
-
+        data = {
+        'id': iduser,
+        'last_name': nomutil,
+        'first_name': prenomutil,
+        }
+        return JsonResponse(data)
+    empty_data={}
+    return JsonResponse(empty_data)
 
 def EcranLogin(request):
 	try:
@@ -233,31 +240,51 @@ def deleteuser(request):
 def changeuser(request):
     idutil = request.GET.get('id', None)
     username = request.GET.get('username', None)
-    mailutil = request.GET.get('mailutil', '')
-    prenomutil = request.GET.get('prenomutil', None)
-    nomutil = request.GET.get('nameutil', None)
-    util = Utilisateur.objects.get(idutil=idutil)
-    util.username = username
-    #Si le mail a ete change par l'administrateur, alors redemander la validation
-    if util.email != mailutil and mailutil != '':
-        from django.core.mail import send_mail
-        key = util.validationkey
-        send_mail('eLOG Mailing Confirmation',
-        'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/?validationkey='+key,
-        'NoReply@elog.com',
-        [mailutil],
-        fail_silently=False)
-    util.email = mailutil
-    util.first_name = prenomutil
-    util.last_name = nomutil
-    util.issuperuser = 0
-    util.save()
-    data = {
-        'id': idutil,
-        'first_name': prenomutil,
-        'last_name': nomutil
-    }
-    return JsonResponse(data)
+    try:
+        test = Utilisateur.objects.get(username=username)
+    except ObjectDoesNotExist:
+    	mailutil = request.GET.get('mailutil', '')
+	prenomutil = request.GET.get('prenomutil', None)
+        nomutil = request.GET.get('nameutil', None)
+        util = Utilisateur.objects.get(idutil=idutil)
+        util.username = username
+	    #Si le mail a ete change par l'administrateur, alors redemander la validation
+        if util.email != mailutil and mailutil != '':
+            from django.core.mail import send_mail
+            key = util.validationkey
+	    send_mail('eLOG Mailing Confirmation',
+		'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+key,
+		'NoReply@elog.com',
+		[mailutil],
+		fail_silently=False)
+        util.email = mailutil
+        util.first_name = prenomutil
+        util.last_name = nomutil
+        util.issuperuser = 0
+        util.save()
+        data = {
+            'id': idutil,
+            'first_name': prenomutil,
+            'last_name': nomutil
+            }
+        return JsonResponse(data)
+    empty_data={}
+    return JsonResponse(empty_data)
+
+def validateAccount(request):
+    key = request.GET.get('validationkey', None)
+    if key is not None:
+        user = Utilisateur.objects.get(validationkey=key)
+    
+        if user.validated != 1:
+	    user.validated=1
+        else:
+            return HttpResponse("Votre compte est déjà activé!")
+    
+        user.save()
+        return HttpResponse("Bonjour, vous avez bien activé votre compte!<br> Vous pouvez vous connecter en suivant <a href=\"http://127.0.0.1:8000/\">ce lien</a>.")
+    else:
+        return errorPage(request, 'Opération non autorisée.')
 
 
 def validated(request): #Cette vue permet d'effectuer les traitements suite à la validation de la fiche
