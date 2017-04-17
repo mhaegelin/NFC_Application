@@ -42,7 +42,6 @@
 									<table>
 										<thead>
 											<tr>
-												<th>Présent</th>
 												<th>Nom</th>
 												<th>Prénom</th>
 											</tr>
@@ -50,7 +49,7 @@
 										<tbody>
 										{% for etu in list_etu %}
 											<tr class=initial>
-												<td>
+												<td id=hiddenCheckbox>
 													<input type="checkbox" id="id_{{etu.idetud}}" name="list_etu" value="{{etu.idetud}}" checked>
 													<label for="id_{{etu.idetud}}"></label>
 												</td>
@@ -83,6 +82,8 @@
 
 		<!-- Scripts -->
 			<script>
+				$("tbody tr #hiddenCheckbox").hide();
+				
 				$("tbody tr").click(function() {
 						$(this).toggleClass("clicked");
 						var c = $(this).find("input");
@@ -91,7 +92,7 @@
 						} else {
 							 $(this).find("input").prop('checked', true);
 						}
-						});		
+						});
 			</script>
 			<script src=" {% static "assets/js/jquery.min.js" %}"></script>
 			<script src=" {% static "assets/js/jquery.scrollex.min.js" %}"></script>
