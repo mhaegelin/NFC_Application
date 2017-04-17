@@ -32,14 +32,17 @@ def hello(request):
 def signup(request):
     import hashlib
 	#Ajouter l'utilisateur
+    import time
+    print time.time()
     uname = request.POST.get('username', '')
     mail = request.POST.get('mail', '')
     fname = request.POST.get('first_name', '')
     lname = request.POST.get('last_name', '')
     upass = request.POST.get('passwd1','')
+    #validationkey = 
     hash_object = hashlib.sha1(upass)
     hex_dig = hash_object.hexdigest()
-    user = Utilisateur(username=uname, email=mail, first_name=fname, last_name=lname, password=hex_dig)
+    user = Utilisateur(username=uname, email=mail, first_name=fname, last_name=lname, password=hex_dig, validationkey='', validated=0)
     user.save()
     return render(request, "login.html")
 
@@ -114,21 +117,42 @@ def ajaxutil(request):
     }
     return JsonResponse(data)
 
-"""def addutil(request):
-    username = request.POST.get('Username', '')
-    password = request.POST.get('Password', '')
-    email = request.POST.get('Mail', '')
-    choice = request.POST.get('choice_field', '')
-    name = request.POST.get('Name', '')
-    lastname = request.POST.get('LastName', '')
-    util = AddUser()
-    utilisateur = User.objects.create_user(username, email, password)
-    utilisateur.is_superuser = choice
-    utilisateur.first_name = name
-    utilisateur.last_name = lastname
-    utilisateur.save()
-    return render(request, 'accueil.html', {'formulaire' : util})
-"""
+def adduser(request):
+    import time
+    import md5
+    import hashlib
+    from django.core.mail import send_mail
+    username = request.GET.get('username', None)
+    nomutil = request.GET.get('nameutil', None)
+    prenomutil = request.GET.get('prenomutil',None)
+    mailutil = request.GET.get('mailutil',None)
+    #Mot de passe par defaut
+    upass = 'root'
+    hash_object = hashlib.sha1(upass)
+    hex_dig = hash_object.hexdigest()
+    #Generation de la validationkey
+    t = time.time()
+    key = md5.new(str(t))
+    user = Utilisateur(username=username, email=mailutil, first_name=prenomutil, last_name=nomutil, password=hex_dig, validationkey=key.hexdigest(), validated=0)
+    user.save()
+    lastuser = Utilisateur.objects.latest('idutil')
+    iduser = lastuser.idutil
+    send_mail(
+    'eLOG Mailing Confirmation',
+    'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/?validationkey='+key.hexdigest(),
+    'NoReply@elog.com',
+    [mailutil],
+    fail_silently=False,
+    )
+    
+    data = {
+    'id': iduser,
+    'last_name': nomutil,
+    'first_name': prenomutil,
+    }
+    return JsonResponse(data)
+
+
 def EcranLogin(request):
 	try:
 		del request.session['userid']
@@ -185,11 +209,10 @@ def trace(request):
 
         if trace_NFC is not None:
             import time
-            #print trace_NFC
+            from datetime import datetime
 	        #print time.strftime('%d/%m/%y %H:%M',time.localtime())
             hour = int(time.strftime('%H', time.localtime()))
 	        #verifier que nous ne sommes pas dans une periode creuse
-	        #Comment changer le fuseau horaire?
             addToTrace = Trace(tracenfc = trace_NFC)
             if hour < 5 or hour > 18:
 				return errorPage(request, 'Could not reach server. Try again later.')
@@ -209,10 +232,30 @@ def deleteuser(request):
 
 def changeuser(request):
     idutil = request.GET.get('id', None)
+    username = request.GET.get('username', None)
+    mailutil = request.GET.get('mailutil', '')
+    prenomutil = request.GET.get('prenomutil', None)
+    nomutil = request.GET.get('nameutil', None)
     util = Utilisateur.objects.get(idutil=idutil)
-    util.delete()
+    util.username = username
+    #Si le mail a ete change par l'administrateur, alors redemander la validation
+    if util.email != mailutil and mailutil != '':
+        from django.core.mail import send_mail
+        key = util.validationkey
+        send_mail('eLOG Mailing Confirmation',
+        'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/?validationkey='+key,
+        'NoReply@elog.com',
+        [mailutil],
+        fail_silently=False)
+    util.email = mailutil
+    util.first_name = prenomutil
+    util.last_name = nomutil
+    util.issuperuser = 0
+    util.save()
     data = {
-        'listeutil' : '',
+        'id': idutil,
+        'first_name': prenomutil,
+        'last_name': nomutil
     }
     return JsonResponse(data)
 
@@ -243,8 +286,3 @@ def validated(request): #Cette vue permet d'effectuer les traitements suite à l
 		fiche.valide = 1
 		fiche.save()
 	return render(request, 'validated.html')
-
-def test(request):
-    toto = 'FFFFA'
-    url = reverse('traceNFC', args={'traceNFC' : toto})
-    return HttpResponseRedirect(url)

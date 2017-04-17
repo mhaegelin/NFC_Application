@@ -43,6 +43,8 @@ CREATE TABLE Utilisateur(
         username    Varchar (25) ,
         isSuperuser Boolean ,
         TraceNFC    Varchar (25) ,
+        ValidationKey Varchar (100),
+        Validated Integer,
         PRIMARY KEY (idUtil )
 )ENGINE=InnoDB;
 

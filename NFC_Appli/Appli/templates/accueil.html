@@ -25,7 +25,7 @@
 							<li><a href="#intro">Bonjour</a></li>
 							<li><a href="#one">Gestion Utilisateurs</a></li>
 							<li><a href="#two">Gestion Etudiants</a></li>
-							<li><a href="#three">Gestion Cours</a></li>
+							<li><a href="#three">Gestion Groupe</a></li>
 						</ul>
 					</nav>
 				</div>
@@ -58,12 +58,12 @@
 									</select>
 									<br>
 									<ul class="actions" align="right">
-											<li><a class="button" onClick="display_user_form();empty_data();action_ajouter();" name="add_user" id="add_user">Ajouter</a></li>
+											<li><a class="button" onClick="empty_data();display_user_form();action_ajouter();" name="add_user" id="add_user">Ajouter</a></li>
 											<li><a class="button special disabled" onClick="display_user_form();load_data();action_modify();" name="change_user" id="change_user">Modifier</a></li>
 											<li><a class="button special disabled" onClick="del_user();" name="drop_user" id="drop_user">Supprimer</a></li>
 									</ul>
    	  								 <div id="user_form" hidden="true">
-									 <form method="post" action="/Appli/accueil/">
+									 <form method="post" action="/Appli/signup/">
 										{% csrf_token %}
 										<div class="split">
 										<section>
@@ -94,7 +94,7 @@
 										</section>
 										</div>
 										<ul class="actions" align="right">
-											<li><a onClick="" class="button" id="validation">Valider</a></li>
+											<li><a class="button" id="validation">Valider</a></li>
 											<li><a class="button" onClick="hide_user_form();" id="annulation">Annuler</a></li>
 										</ul>
 									</form>
@@ -129,6 +129,7 @@
 						$("#user_form").hide();
 						$("#add_user").removeClass('button special disabled').addClass('button');
 						$("#listutil").prop('disabled', false);
+                                                $("#listutil").val('default').change();
 						};
 						
 						
@@ -166,11 +167,27 @@
 							$("#validation").bind('click', function(){
 								//set your method - validation
 								//alert('Validation -- ajout');
+								var username = $("#username").val();
+								var nameutil = $("#nameutil").val();
+								var prenomutil = $("#prenomutil").val();
+								var mailutil = $("#mailutil").val();
+								//alert(username + nameutil + prenomutil + mailutil);
+								$.ajax({
+									url: '/Appli/accueil/adduser',
+									data: {
+									'username': username,
+									'nameutil': nameutil,
+									'prenomutil': prenomutil,
+									'mailutil': mailutil
+									},
+									dataType: 'json',
+									success: function (data) {
+									//Ajouter la donnee ds la liste select/option
+                                                                        $("#listutil").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
+									}
+								});
 								});
 							$("#annulation").bind('click', function(){
-								//set your method - validation
-								//alert('Annulation -- ajout');
-								//$("#listutil").val('default').change();
 							});
 						}
 						
@@ -181,17 +198,42 @@
 							$("#validation").bind('click', function(){
 								//set your method - validation
 								//alert('Validation -- modifier');
+								var username = $("#username").val();
+								var nameutil = $("#nameutil").val();
+								var prenomutil = $("#prenomutil").val();
+								var mailutil = $("#mailutil").val();
+                                                                var usertmp = $("#listutil").val();
+								var id = usertmp.split(' ');
+								
+								$.ajax({
+									url: '/Appli/accueil/changeuser',
+									data: {
+                                                                        'id': id[0],
+									'username': username,
+									'nameutil': nameutil,
+									'prenomutil': prenomutil,
+									'mailutil': mailutil
+									},
+									dataType: 'json',
+									success: function (data) {
+									//Ajouter la donnee ds la liste select/option
+                                                                        $("#listutil option[value='"+data.id+"']").remove();
+                                                                        hide_user_form();
+									$("#listutil").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
+									}
+								});
 								});
 							$("#annulation").bind('click', function(){
 								//set your method - validation
 								//alert('Annulation -- modifier');
+                                                                
 							});
 						}
 						
 						function del_user() {
 								var username = $("#listutil").val();
 								var id = username.split(' ');
-								alert(id[0]);
+								//alert(id[0]);
 								$.ajax({
 									url: '/Appli/accueil/deleteuser',
 									data: {
@@ -201,6 +243,7 @@
 									success: function (data) {
 									//Supprimer la donnee de la liste select/option
 									$("#listutil option[value='"+id[0]+"']").remove();
+                                                                        $("#listutil").val('default').change();
 									}
 								});
 						}

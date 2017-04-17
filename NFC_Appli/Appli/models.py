@@ -25,7 +25,7 @@ class Etudiant(models.Model):
     idetud = models.AutoField(db_column='IDEtud', primary_key=True)  # Field name made lowercase.
     nometud = models.CharField(db_column='NomEtud', max_length=25, blank=True, null=True)  # Field name made lowercase.
     prenometud = models.CharField(db_column='PrenomEtud', max_length=25, blank=True, null=True)  # Field name made lowercase.
-    mailetud = models.CharField(db_column='MailEtud', max_length=25, blank=True, null=True)  # Field name made lowercase.
+    mailetud = models.CharField(db_column='MailEtud', max_length=50, blank=True, null=True)  # Field name made lowercase.
     hasbadged = models.IntegerField(db_column='hasBadged', blank=True, null=True)  # Field name made lowercase.
     tracenfc = models.CharField(db_column='TraceNFC', max_length=25, blank=True, null=True)  # Field name made lowercase.
     idpromo = models.ForeignKey('Promotion', models.DO_NOTHING, db_column='IDPromo', blank=True, null=True)  # Field name made lowercase.
@@ -70,11 +70,12 @@ class Utilisateur(models.Model):
     first_name = models.CharField(max_length=25, blank=True, null=True)
     last_name = models.CharField(max_length=25, blank=True, null=True)
     password = models.CharField(max_length=75, blank=True, null=True)
-    email = models.CharField(max_length=25, blank=True, null=True)
+    email = models.CharField(max_length=60, blank=True, null=True)
     username = models.CharField(max_length=25, blank=True, null=True)
     issuperuser = models.IntegerField(db_column='isSuperuser', blank=True, null=True)  # Field name made lowercase.
     tracenfc = models.CharField(db_column='TraceNFC', max_length=25, blank=True, null=True)  # Field name made lowercase.
-
+    validationkey = models.CharField(db_column='ValidationKey', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    validated = models.IntegerField(db_column='Validated', blank=True, null=True)
     class Meta:
         db_table = 'Utilisateur'
 

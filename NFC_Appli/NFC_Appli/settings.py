@@ -16,6 +16,13 @@ from settings_secret import *
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_PATH = os.path.dirname(os.path.dirname(__file__))
 
+#ajouter les lignes suivantes a settings_secret.py en mettant les bonnes valeurs (relatives a ton compte ent)!
+#EMAIL_USE_TLS = True
+#EMAIL_HOST = 'mailserver.u-strasbg.fr'
+#EMAIL_PORT = 587
+#EMAIL_HOST_USER = 'mhaegelin'
+#EMAIL_HOST_PASSWORD = 'motdepassehere'
+
 #print "project path", PROJECT_PATH
 
 # Quick-start development settings - unsuitable for production
@@ -84,7 +91,7 @@ WSGI_APPLICATION = 'NFC_Appli.wsgi.application'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 

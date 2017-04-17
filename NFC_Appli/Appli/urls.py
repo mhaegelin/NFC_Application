@@ -9,11 +9,12 @@ urlpatterns = [
     #url(r'^logout$', views.log_out, name='logout'),
     url(r'^Fiche$', views.fiche, name='fiche'),
 	url(r'^Validated$', views.validated, name='validated'),
-	url(r'^Test$', views.test, name='test'),
     url(r'^signup/$', views.signup, name='signup'),
     url(r'^accueil/ajaxetud$', views.ajaxetud, name='ajaxetud'),
     url(r'^accueil/ajaxutil$', views.ajaxutil, name='ajaxutil'),
     url(r'^accueil/ajaxlistetud$', views.ajaxlistetud, name='ajaxlistetud'),
     url(r'^accueil/deleteuser$', views.deleteuser, name='deleteuser'),
+	url(r'^accueil/adduser$', views.adduser, name='adduser'),
+    url(r'^accueil/changeuser$', views.changeuser, name='changeuser'),
     url(r'^trace$', views.trace, name='traceNFC'),
 ]
