@@ -54,7 +54,6 @@ def accueil(request):
 		user = Utilisateur.objects.get(username=uname, password=hex_dig)
 	except ObjectDoesNotExist:
 		user = None
-	print user
 	if user is not None: #Utilisateur reconnu
 		if user.issuperuser == 1: #Scolarite (Administrateur)
 			liste_utilisateurs = Utilisateur.objects.all()
@@ -142,29 +141,35 @@ def log_out(request):
 
 
 def fiche(request):
+	###On récupère l'id de l'utilisateur connecté
 	try:	
 		user = request.session['userid']
 	except KeyError:
 		user = None
-	print user
 	if user is None:
 		return errorPage(request, 'Opération non autorisée.')
-	#On récupère la date et heure actuelle
+	###	
+	
+	###On récupère la date et heure actuelle
 	date = datetime.datetime.now()
+	###
 	
 	#On récupère le cours correspondant au professeur concerné ET
 	#correspondant à la date et heure actuelle
 	#cours = Cours.objects.filter(enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
 	###DEBUG
 	cours = Cours.objects.filter(enseigne__idutil = user)
-	###	
-
-	#On récupère la fiche présomptive du cours actuellement donné par le professeur concerné
+	###
+	
+	###On récupère la fiche
+	fiche = Fiche.objects.filter(enseigne__idutil = user, enseigne__idcours = cours[0].idcours)
+	###
+	#On récupère le groupe correspondant au cours actuellement donné par le professeur concerné
 	groupe = Groupe.objects.filter(cours__idcours = cours[0].idcours)
-	#On récupère la liste des étudiants correspondants à la fiche présomptive, on retire ceux n'ayant pas badgé
+	#On récupère la liste des étudiants correspondants au groupe, on retire ceux n'ayant pas badgé
 	liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe).exclude(hasbadged = 0)
 	nbEtudiant = liste_etu.count()
-	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
+	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours[0], 'fiche' : fiche[0].idfiche}
 	return render(request, "fiche.html", context)
 """
 		cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
@@ -220,11 +225,10 @@ def validated(request): #Cette vue permet d'effectuer les traitements suite à l
 		
 	if user is None:
 		return errorPage(request, 'Opération non autorisée.')
-	###DEBUG
-	user = Utilisateur.objects.get(idutil=user)
-	fiche = Fiche.objects.get(pk=1) # On récupère la fiche présomptive concernée par la validation fiche = request.POST.get('fiche', '')
-	###
 	
+	idfiche = request.POST.get('fiche','')
+	fiche = Fiche.objects.get(idfiche = idfiche)
+
 	list_etu = request.POST.getlist('list_etu')
 	for idetudiant in list_etu:
 		print idetudiant
@@ -238,7 +242,7 @@ def validated(request): #Cette vue permet d'effectuer les traitements suite à l
 	if fiche.valide == 0:
 		fiche.valide = 1
 		fiche.save()
-	return render(request, 'validated.html', {'user' : user})
+	return render(request, 'validated.html')
 
 def test(request):
     toto = 'FFFFA'

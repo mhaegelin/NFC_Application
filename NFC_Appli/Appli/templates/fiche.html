@@ -35,9 +35,12 @@
 						<div class="inner">
 							<h1>Fiche présomptive</h1>
 							<hr/>
-							NOMBRE D'ETUDIANTS :<strong> {{ nbEtudiant}} </strong><br/><br/><br/>
+							<strong>COURS</strong> : {{ cours.intitulecours }} <br/><br/>
+							<strong>NOMBRE D'ETUDIANTS</strong> : {{ nbEtudiant}}
+							<hr/>
 							<form action="{% url 'validated' %}" method="post">
 							{% csrf_token %}
+								<input type="hidden" id="idfiche" name="fiche" value="{{fiche}}">
 								<div class="table-wrapper">
 									<table>
 										<thead>
