@@ -190,7 +190,7 @@ def trace(request):
             hour = int(time.strftime('%H', time.localtime()))
 	        #verifier que nous ne sommes pas dans une periode creuse
 	        #Comment changer le fuseau horaire?
-	        
+            addToTrace = Trace(tracenfc = trace_NFC)
             if hour < 5 or hour > 18:
 				return errorPage(request, 'Could not reach server. Try again later.')
 				

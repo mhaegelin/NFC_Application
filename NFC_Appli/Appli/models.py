@@ -106,3 +106,11 @@ class Enseigne(models.Model):
     class Meta:
         db_table = 'enseigne'
         unique_together = (('idcours', 'idutil', 'idfiche'),)
+        
+        
+        
+class Trace(models.Model):
+	tracenfc = models.CharField(db_column='TraceNFC', primary_key=True, max_length=25)  # Field name made lowercase.
+
+	class Meta:
+		db_table = 'Trace'
