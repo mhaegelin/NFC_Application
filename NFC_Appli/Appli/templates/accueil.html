@@ -26,6 +26,7 @@
 							<li><a href="#one">Gestion Utilisateurs</a></li>
 							<li><a href="#two">Gestion Etudiants</a></li>
 							<li><a href="#three">Gestion Groupe</a></li>
+							<li><a href="#four">Gestion Fiche</a></li>
 							<li><a href="{% url 'login' %}">Déconnexion</a></li>
 						</ul>
 					</nav>
@@ -63,44 +64,44 @@
 											<li><a class="button special disabled" onClick="display_user_form();load_data();action_modify();" name="change_user" id="change_user">Modifier</a></li>
 											<li><a class="button special disabled" onClick="del_user();" name="drop_user" id="drop_user">Supprimer</a></li>
 									</ul>
-   	  								 <div id="user_form" hidden="true">
-									 <form method="post" action="/Appli/signup/">
-										{% csrf_token %}
-										<div class="split">
-										<section>
-										<div class="field">
-											<label for="prenomutil">Prénom</label>
-											<input type="text" name="prenomutil" id="prenomutil" />
-										</div>
-										</section>
-										<section>
-										<div class="field">
-											<label for="nameutil">Nom de famille</label>
-											<input type="text" name="nameutil" id="nameutil" />
-										</div>
-										</section>
-										</div>
-										<div class="split">
-										<section>
-										<div class="field">
-											<label for="username">Nom d'utilisateur</label>
-											<input type="text" name="username" id="username" />
-										</div>
-										</section>
-										<section>
-										<div class="field">
-											<label for="mailutil">Email</label>
-											<input type="text" name="mailutil" id="mailutil" />
-										</div>
-										</section>
-										</div>
-										<ul class="actions" align="right">
-											<li><a class="button" id="validation">Valider</a></li>
-											<li><a class="button" onClick="hide_user_form();" id="annulation">Annuler</a></li>
-										</ul>
-									</form>
+   	  								<div id="user_form" hidden="true">
+										<form method="post" action="/Appli/signup/">
+											{% csrf_token %}
+											<div class="split">
+											<section>
+											<div class="field">
+												<label for="prenomutil">Prénom</label>
+												<input type="text" name="prenomutil" id="prenomutil" />
+											</div>
+											</section>
+											<section>
+											<div class="field">
+												<label for="nameutil">Nom de famille</label>
+												<input type="text" name="nameutil" id="nameutil" />
+											</div>
+											</section>
+											</div>
+											<div class="split">
+											<section>
+											<div class="field">
+												<label for="username">Nom d'utilisateur</label>
+												<input type="text" name="username" id="username" />
+											</div>
+											</section>
+											<section>
+											<div class="field">
+												<label for="mailutil">Email</label>
+												<input type="text" name="mailutil" id="mailutil" />
+											</div>
+											</section>
+											</div>
+											<ul class="actions" align="right">
+												<li><a class="button" id="validation">Valider</a></li>
+												<li><a class="button" onClick="hide_user_form();" id="annulation">Annuler</a></li>
+											</ul>
+										</form>
 									</div>
-									</section>
+								</section>
 							</div>
 						</div>
 						<script>
@@ -259,7 +260,7 @@
 								});
 						}
 					</script>
-					</section>
+
 				<!-- Two -->
 					<section id="two" class="wrapper style1 fullscreen fade-up">
 						<div class="inner">
@@ -379,6 +380,181 @@
 							</div>
 						</div>
 					</section>
+					
+				<!-- Four -->
+					<section id="four" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">
+							<h2>Sélectionner une fiche</h2>
+							<p>Veuillez choisir la fiche que vous souhaitez gérer :</p>
+							<div class="split style1">
+								<section>
+									<select id="listfiche">
+										<option value="default">#NoSelection#</option>
+										{% for fiche in liste_fiche %}
+										<option value="{{ fiche.idfiche }}">{{fiche.idfiche}}</option>
+										{% endfor %}
+									</select>
+									<br>
+									<hr>
+   	  								<div id="fiche_form" hidden="true">
+									<form method="post" action="#">
+										{% csrf_token %}
+										<div class="vertical">
+											<section>
+												<div class="table-wrapper">
+													<table>
+														<thead>
+															<tr>
+																<th>Nom</th>
+																<th>Prénom</th>
+															</tr>
+														</thead>									
+														<tbody id="listEtudFiche">
+														{% for etu in list_etu %}
+															<tr>
+																<td>
+																	{{ etu.nometud }}
+																</td>
+																<td>
+																	{{ etu.prenometud }}
+																</td>
+															</tr>
+														{% endfor %}
+														</tbody>
+													</table>
+												</div>
+											</section>
+											<section>
+												<div class="field">
+													<input type="checkbox" id="validefiche" name="validefiche">
+													<label for="validefiche">Valider</label>
+												</div>
+											</section>
+										</div>
+										<ul class="actions" align="right">
+											<li><a class="button" onClick="action_modify();" name="change_fiche" id="change_fiche">Modifier</a></li>
+											<li><a href="printfiche" class="button" onClick="print_fiche();" name="print_fiche" id="print_fiche">Imprimer</a></li>
+											<li><a class="button" onClick="hide_fiche_form();" id="annulation">Annuler</a></li>
+										</ul>
+									</form>
+									</div>
+								</section>
+							</div>
+						</div>
+					</section>
+					<script>
+						$("#listfiche").change(function() {
+						var id = $(this).val();
+						
+						if (id!="default") {
+						display_fiche_form();
+						load_listetud_fiche();
+						}
+						});
+						
+						function display_fiche_form() {
+						$("#fiche_form").show();
+						$("#listfiche").prop('disabled', true);
+						$("#idfiche").prop('disabled', true);
+						};
+						
+						function hide_fiche_form() {
+						$("#fiche_form").hide();
+						$("#listfiche").prop('disabled', false);
+                        $("#listfiche").val('default').change();
+						};
+						
+						
+						function load_listetud_fiche() {
+										
+							var id = $("#listfiche").val();
+							
+							$.ajax({
+								url: '/Appli/accueil/ajaxfiche',
+								data: {
+									'id': id
+								},
+								dataType: 'json',
+								success: function (data) {
+									$("#idfiche").val(data.id);
+									if (data.valide == 0){
+										$("#validefiche").prop('checked', false);
+									}	
+									else {
+										$("#validefiche").prop('checked', true);
+									}
+									//Supprimer les elements préalablement dans le tableau
+									$('#listEtudFiche')
+									.find('tr')
+									.remove()
+									.end();
+									listetudfiche = eval(data.listetudfiche);
+									for (var key in listetudfiche) {
+										$("#listEtudFiche").append('<tr> <td>' + listetudfiche[key].input_prenometud
+										+'</td><td> ' + listetudfiche[key].input_nometud+'</td> </tr>');
+									}
+								}
+							});
+						}
+						
+						
+						function action_modify() {
+							//change l'action du bouton valider suite à clic sur modifier
+							$("#validation").unbind('click');
+							$("#annulation").unbind('click');
+							$("#validation").bind('click', function(){
+								//set your method - validation
+								//alert('Validation -- modifier');
+								var username = $("#username").val();
+								var nameutil = $("#nameutil").val();
+								var prenomutil = $("#prenomutil").val();
+								var mailutil = $("#mailutil").val();
+                                                                var usertmp = $("#listfiche").val();
+								var id = usertmp.split(' ');
+								
+								$.ajax({
+									url: '/Appli/accueil/changeuser',
+									data: {
+                                                                        'id': id[0],
+									'username': username,
+									'nameutil': nameutil,
+									'prenomutil': prenomutil,
+									'mailutil': mailutil
+									},
+									dataType: 'json',
+									success: function (data) {
+									//Ajouter la donnee ds la liste select/option
+									if (jQuery.isEmptyObject(data)){
+										alert('Nom d\'utilisateur déjà pris!');
+									}
+									else{
+                                                                        $("#listfiche option[value='"+data.id+"']").remove();
+                                                                        hide_user_form();
+									$("#listfiche").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
+									}
+									}
+								});
+								});
+							$("#annulation").bind('click', function(){
+								//set your method - validation
+								//alert('Annulation -- modifier');
+                                                                
+							});
+						}
+						
+						function print_fiche() {
+								var id = $("#listfiche").val();
+								$.ajax({
+									url: '/Appli/accueil/printfiche',
+									data: {
+									'id': id
+									},
+									dataType: 'json',
+									success: function (data) {
+									}
+								});
+						}
+					</script>
 			</div>
 		<!-- Footer -->
 			<footer id="footer" class="wrapper style1-alt">

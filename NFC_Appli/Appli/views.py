@@ -63,14 +63,15 @@ def accueil(request):
 			liste_etudiants = Etudiant.objects.all()
 			liste_cours = Cours.objects.all()
 			liste_promo = Promotion.objects.all()
-			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo})
+			liste_fiche = Fiche.objects.all()
+			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo, 'liste_fiche' : liste_fiche})
 		else: #Professeur (Non-administrateur)
 			request.session['userid'] = user.idutil
 			request.session.set_expiry(0)
-                        if user.validated == 1:
-         		    return redirect('fiche')
-                        else:
-                            return errorPage(request, 'Compte non activé.')
+			if user.validated == 1:
+				return redirect('fiche')
+			else:
+				return errorPage(request, 'Compte non activé.')
 	else:
 		return errorPage(request, 'Utilisateur inconnu.')
 
@@ -119,6 +120,31 @@ def ajaxutil(request):
     'mail': mail
     }
     return JsonResponse(data)
+    
+def ajaxfiche(request):
+	import json
+	
+	idFiche = request.GET.get('id', None)
+	fiche = Fiche.objects.get(idfiche=idFiche)
+	idfiche = fiche.idfiche
+	valide = fiche.valide
+	#Ici deux cas se présentent : 
+	#Soit la fiche est validée : On récupère les étudiants validés sur la fiche et donc on va chercher dans la table Contient
+	#Soit la fiche n'est pas validée : On récupère les étudiants correspondants au groupe du cours correspondant
+	if (valide == 1):
+		listetud = Etudiant.objects.filter(contient__idfiche = idFiche)
+	else:
+		cours = Cours.objects.filter(enseigne__idfiche = idFiche) #Le cours correspondant à la fiche
+		listetud = Etudiant.objects.filter(appartient__idgroupe = cours[0].idgroupe)
+		
+	liste = [e.as_json() for e in listetud]
+
+	data = {
+		'id': idfiche,
+		'valide': valide,
+		'listetudfiche': json.dumps(liste)
+	}
+	return JsonResponse(data)    
 
 def adduser(request):
     import time
@@ -270,7 +296,13 @@ def changeuser(request):
         return JsonResponse(data)
     empty_data={}
     return JsonResponse(empty_data)
-
+    
+def printfiche(request):
+	idfiche = request.GET.get('id', None)
+	return errorPage(request, "Impression de la fiche présomptive depuis le secrétariat.")
+    
+    
+    
 def validateAccount(request):
     key = request.GET.get('validationkey', None)
     if key is not None:
