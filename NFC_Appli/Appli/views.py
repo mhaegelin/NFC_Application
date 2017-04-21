@@ -16,16 +16,7 @@ from django.contrib import messages
 
 def errorPage(request, errorMessage):#Page regroupant toutes les erreurs de l'appli	
 	return render(request, 'error.html', {'errorMessage' : errorMessage})
-
-class AddUser(forms.Form):
-    Username = forms.CharField(label='Username', max_length=100)
-    Password = forms.CharField(label='Password', max_length=100, widget=forms.PasswordInput)
-    Name = forms.CharField(label='Name', max_length=100)
-    LastName = forms.CharField(label='LastName', max_length=100)
-    Mail = forms.CharField(label='Mail', max_length=100, widget=forms.EmailInput)
-    CHOICES = (('0', 'Utilisateur standard'), ('1', 'SuperUtilisateur'))
-    choice_field = forms.ChoiceField(label='ChoiceField', widget=forms.RadioSelect, choices=CHOICES)
-
+"""
 def hello(request):
     return HttpResponse("Hello, world. You're at the Appli index.")
 
@@ -45,6 +36,25 @@ def signup(request):
     user = Utilisateur(username=uname, email=mail, first_name=fname, last_name=lname, password=hex_dig, validationkey='', validated=0)
     user.save()
     return render(request, "login.html")
+"""
+
+def update_scanning(request):
+	admin = Utilisateur.objects.get(username="Admin")
+	if admin.isscanning == 0:
+		admin.isscanning = 1
+		admin.save()
+	traces = Trace.objects.all()
+	ntraces = traces.count()
+	if ntraces>0:
+		data = { 'tracenfc': traces.first().tracenfc }
+		traces.first().delete()
+		admin.isscanning = 0
+		admin.save()
+		return JsonResponse(data)
+	else:
+		empty_data = {}
+		return JsonResponse(empty_data)
+
 
 def accueil(request):
 	import hashlib
@@ -65,6 +75,7 @@ def accueil(request):
 			liste_promo = Promotion.objects.all()
 			liste_fiche = Fiche.objects.all()
 			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo, 'liste_fiche' : liste_fiche})
+
 		else: #Professeur (Non-administrateur)
 			request.session['userid'] = user.idutil
 			request.session.set_expiry(0)
@@ -107,17 +118,19 @@ def ajaxutil(request):
         fname = util.first_name
         lname = util.last_name
         mail = util.email
+        tracenfc = util.tracenfc
     else:
         uname=''
         fname=''
         lname=''
         mail=''
-    
+        tracenfc=''
     data = {
     'user_name': uname,
     'first_name': fname,
     'last_name': lname,
-    'mail': mail
+    'mail': mail,
+    'tracenfc': tracenfc
     }
     return JsonResponse(data)
     
@@ -158,6 +171,7 @@ def adduser(request):
         nomutil = request.GET.get('nameutil', None)
         prenomutil = request.GET.get('prenomutil',None)
         mailutil = request.GET.get('mailutil',None)
+        tracenfc = request.GET.get('tracenfc',None)
         #Mot de passe par defaut
         upass = 'root'
         hash_object = hashlib.sha1(upass)
@@ -165,7 +179,7 @@ def adduser(request):
         #Generation de la validationkey
         t = time.time()
         key = md5.new(str(t))
-        user = Utilisateur(username=username, email=mailutil, first_name=prenomutil, last_name=nomutil, password=hex_dig, validationkey=key.hexdigest(), validated=0, hasbadged=0)
+        user = Utilisateur(username=username, email=mailutil, first_name=prenomutil, last_name=nomutil, password=hex_dig, validationkey=key.hexdigest(), validated=0, hasbadged=0, tracenfc=tracenfc)
         user.save()
         lastuser = Utilisateur.objects.latest('idutil')
         iduser = lastuser.idutil
@@ -237,6 +251,7 @@ def fiche(request):
 """
 		
 def trace(request):
+    #print request.session['scanning']
     if request.method == 'POST':
         trace_NFC = request.POST.get('traceNFC')
 
@@ -248,9 +263,26 @@ def trace(request):
 	        #verifier que nous ne sommes pas dans une periode creuse
             addToTrace = Trace(tracenfc = trace_NFC)
             if hour < 5 or hour > 18:
-				return errorPage(request, 'Could not reach server. Try again later.')
+				return errorPage(request, 'Unauthorized operation.')
+			
+            try:
+				etud = Etudiant.objects.get(tracenfc=trace_NFC)
+				#tester aussi si l'utilisateur existe déjà dans Utilisateur.objects
+            except ObjectDoesNotExist:
+				try:
+					util = Utilisateur.objects.get(tracenfc=trace_NFC)
+				except ObjectDoesNotExist:
+					admin = Utilisateur.objects.get(username="Admin")
+					if admin.isscanning==1:
+						NFC = Trace(tracenfc=trace_NFC)
+						NFC.save()
+						return HttpResponse('Ok')
+					else:
+						return HttpResponse('Error')
 				
-            etud = Etudiant.objects.get(tracenfc=trace_NFC)
+				util.hasbadged = 1
+				util.save()
+				return errorPage(request, 'Unauthorized operation.')	
             etud.hasbadged = 1
             etud.save()
 	
@@ -266,20 +298,24 @@ def deleteuser(request):
 def changeuser(request):
     idutil = request.GET.get('id', None)
     username = request.GET.get('username', None)
+    Ok=False
     try:
         test = Utilisateur.objects.get(username=username)
     except ObjectDoesNotExist:
-    	mailutil = request.GET.get('mailutil', '')
-	prenomutil = request.GET.get('prenomutil', None)
+        Ok=True
+    
+    if Ok or str(test.idutil) == str(idutil):
+        mailutil = request.GET.get('mailutil', '')
+        prenomutil = request.GET.get('prenomutil', None)
         nomutil = request.GET.get('nameutil', None)
         util = Utilisateur.objects.get(idutil=idutil)
         util.username = username
-	    #Si le mail a ete change par l'administrateur, alors redemander la validation
+	#Si le mail a ete change par l'administrateur, alors redemander la validation
         if util.email != mailutil and mailutil != '':
             from django.core.mail import send_mail
             key = util.validationkey
 	    send_mail('eLOG Mailing Confirmation',
-		'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+key,
+	    'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+key,
 		'NoReply@elog.com',
 		[mailutil],
 		fail_silently=False)
@@ -300,9 +336,7 @@ def changeuser(request):
 def printfiche(request):
 	idfiche = request.GET.get('id', None)
 	return errorPage(request, "Impression de la fiche présomptive depuis le secrétariat.")
-    
-    
-    
+
 def validateAccount(request):
     key = request.GET.get('validationkey', None)
     if key is not None:
@@ -345,3 +379,6 @@ def validated(request): #Cette vue permet d'effectuer les traitements suite à l
 		fiche.valide = 1
 		fiche.save()
 	return render(request, 'validated.html')
+
+def test(request):
+    return render(request, 'test.html')

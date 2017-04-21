@@ -18,6 +18,17 @@ CREATE EVENT RESET_AFTERNOON
 	STARTS CURRENT_DATE + INTERVAL 1 DAY + INTERVAL 13 HOUR
     DO UPDATE Etudiant SET hasBadged = 0;
 	
+CREATE EVENT RESET_MORNING_USER
+    ON SCHEDULE EVERY 1 DAY 
+	STARTS CURRENT_DATE + INTERVAL 1 DAY + INTERVAL 6 HOUR
+    DO UPDATE Utilisateur SET hasBadged = 0;
+
+CREATE EVENT RESET_AFTERNOON_USER
+    ON SCHEDULE EVERY 1 DAY 
+	STARTS CURRENT_DATE + INTERVAL 1 DAY + INTERVAL 13 HOUR
+    DO UPDATE Utilisateur SET hasBadged = 0;
+
+
 #------------------------------------------------------------
 
 
@@ -74,11 +85,12 @@ INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGr
 
 
 INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
-(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', true, 'EFZTREF'),
+(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', false, 'EFZTREF'),
 (2, 'Philippe', 'Clauss', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', `email`, 'pc', false, 'EFZTREF'),
 (3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
 (4, 'Stella', 'Marc', 'toto', `email`, `username`, false, 'EFZTREF'),
-(5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, 'EFZTREF');
+(5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, 'EFZTREF'),
+(6, 'Admin', 'Admin', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', NULL, `Admin`, true, NULL);
 
 
 INSERT INTO `contient` (`IDFiche`, `IDEtud`) VALUES

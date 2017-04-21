@@ -40,7 +40,7 @@
 					<section id="intro" class="wrapper style1 fullscreen fade-up">
 						<div class="inner">
 							<h1>eLOG</h1>
-							<p>Bonjour {{ user.first_name }} {{ user.last_name }}!</p>
+							<p>Bonjour Administrateur!</p>
 							<p>Vous êtes sur l'interface administrateur de eLOG.</p>
 						</div>
 					</section>
@@ -55,7 +55,9 @@
 									<select id="listutil">
 										<option value="default">#NoSelection#</option>
 										{% for util in liste_util %}
+										{% if util.username != 'Admin' %}
 										<option value="{{ util.idutil }}">{{util.idutil}} {{ util.first_name }} {{ util.last_name }}</option>
+										{% endif %}
 										{% endfor %}
 									</select>
 									<br>
@@ -64,46 +66,91 @@
 											<li><a class="button special disabled" onClick="display_user_form();load_data();action_modify();" name="change_user" id="change_user">Modifier</a></li>
 											<li><a class="button special disabled" onClick="del_user();" name="drop_user" id="drop_user">Supprimer</a></li>
 									</ul>
-   	  								<div id="user_form" hidden="true">
-										<form method="post" action="/Appli/signup/">
-											{% csrf_token %}
-											<div class="split">
-											<section>
-											<div class="field">
-												<label for="prenomutil">Prénom</label>
-												<input type="text" name="prenomutil" id="prenomutil" />
-											</div>
-											</section>
-											<section>
-											<div class="field">
-												<label for="nameutil">Nom de famille</label>
-												<input type="text" name="nameutil" id="nameutil" />
-											</div>
-											</section>
-											</div>
-											<div class="split">
-											<section>
-											<div class="field">
-												<label for="username">Nom d'utilisateur</label>
-												<input type="text" name="username" id="username" />
-											</div>
-											</section>
-											<section>
-											<div class="field">
-												<label for="mailutil">Email</label>
-												<input type="text" name="mailutil" id="mailutil" />
-											</div>
-											</section>
-											</div>
-											<ul class="actions" align="right">
-												<li><a class="button" id="validation">Valider</a></li>
-												<li><a class="button" onClick="hide_user_form();" id="annulation">Annuler</a></li>
-											</ul>
-										</form>
+   	  								 <div id="user_form" hidden="true">
+									 <form method="post" action="/Appli/signup/">
+										{% csrf_token %}
+										<div class="split">
+										<section>
+										<div class="field">
+											<label for="prenomutil">Prénom</label>
+											<input type="text" name="prenomutil" id="prenomutil" />
+										</div>
+										</section>
+										<section>
+										<div class="field">
+											<label for="nameutil">Nom de famille</label>
+											<input type="text" name="nameutil" id="nameutil" />
+										</div>
+										</section>
+										</div>
+										<div class="split">
+										<section>
+										<div class="field">
+											<label for="username">Nom d'utilisateur</label>
+											<input type="text" name="username" id="username" />
+										</div>
+										</section>
+										<section>
+										<div class="field">
+											<label for="mailutil">Email</label>
+											<input type="text" name="mailutil" id="mailutil" />
+										</div>
+										</section>
+										</div>
+										<table style="max-width:600px">
+											<tr>
+											<td style="vertical-align:bottom"><label for="tracenfc">Trace NFC</label></td>
+											<td style="vertical-align:bottom"><input type="text" value="Press button to scan.." name="tracenfc" id="tracenfc" readonly/></td>
+											<td><input type="hidden"  name="scanning" id="scanning" value="1">
+												<div id="abortbutton" hidden="true"><input type="button" name="abort" id="abort" value="Annuler" onclick="Annuler();"></div>
+												<div id="scanbutton"><input type="button" name="scan" id="scan" value="Scanner" onclick="Scanner();"></div>
+											</td>
+											</tr>
+										</table>
+										<ul class="actions" align="right">
+											<li><a class="button" id="validation">Valider</a></li>
+											<li><a class="button" onClick="hide_user_form();" id="annulation">Annuler</a></li>
+										</ul>
+										<script>
+											function Annuler(){
+												$("#scanning").val("0");
+												$("#tracenfc").val("Press button to scan..");
+											}
+											function Scanner(){
+												
+												if ($("#scanning").val()=="1") {
+												$.ajax({
+												url: '/Appli/update_scanning/',
+												data: {},
+												dataType: 'json',
+												success: function (data) {
+														if (jQuery.isEmptyObject(data)){
+														setTimeout(Scanner, 1000);
+															$("#scanbutton").hide();
+															$("#abortbutton").show();
+															$("#tracenfc").val("Scanning..");
+														}
+														else{
+															$("#tracenfc").val(data.tracenfc);
+															$("#abortbutton").hide();
+															$("#scanbutton").show();
+														}
+												}
+												});
+											}
+											else{
+												$("#scanning").val("1");
+												$("#abortbutton").hide();
+												$("#scanbutton").show();
+											}
+											}
+										</script>
+									</form>
 									</div>
 								</section>
 							</div>
 						</div>
+						</section>
 						<script>
 						$("#listutil").change(function() {
 						var utilname = $(this).val();
@@ -130,8 +177,10 @@
 						function hide_user_form() {
 						$("#user_form").hide();
 						$("#add_user").removeClass('button special disabled').addClass('button');
+						$("#change_user").removeClass('button').addClass('button special disabled');
+						$("#drop_user").removeClass('button').addClass('button special disabled');
 						$("#listutil").prop('disabled', false);
-                                                $("#listutil").val('default').change();
+						$("#listutil").val('default').change();
 						};
 						
 						
@@ -150,6 +199,7 @@
 							$("#prenomutil").val(data.first_name);
 							$("#nameutil").val(data.last_name);
 							$("#mailutil").val(data.mail);
+							$("#tracenfc").val(data.tracenfc);
 							}
 							});
 						}
@@ -159,6 +209,7 @@
 							$("#prenomutil").val('');
 							$("#nameutil").val('');
 							$("#mailutil").val('');
+							$("#tracenfc").val('Press button to scan..');
 						}
 						
 						function action_ajouter() {
@@ -173,6 +224,7 @@
 								var nameutil = $("#nameutil").val();
 								var prenomutil = $("#prenomutil").val();
 								var mailutil = $("#mailutil").val();
+								var tracenfc = $("#tracenfc").val();
 								//alert(username + nameutil + prenomutil + mailutil);
 								$.ajax({
 									url: '/Appli/accueil/adduser',
@@ -180,7 +232,8 @@
 									'username': username,
 									'nameutil': nameutil,
 									'prenomutil': prenomutil,
-									'mailutil': mailutil
+									'mailutil': mailutil,
+									'tracenfc': tracenfc
 									},
 									dataType: 'json',
 									success: function (data) {
@@ -189,7 +242,8 @@
 										alert('Nom d\'utilisateur déjà pris!');
 									}
 									else {
-                                                                        $("#listutil").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
+                                    $("#listutil").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
+									hide_user_form();
 									}
 									}
 								});
@@ -209,13 +263,14 @@
 								var nameutil = $("#nameutil").val();
 								var prenomutil = $("#prenomutil").val();
 								var mailutil = $("#mailutil").val();
-                                                                var usertmp = $("#listutil").val();
+								var tracenfc = $("#tracenfc").val();
+							    var usertmp = $("#listutil").val();
 								var id = usertmp.split(' ');
 								
 								$.ajax({
 									url: '/Appli/accueil/changeuser',
 									data: {
-                                                                        'id': id[0],
+									'id': id[0],
 									'username': username,
 									'nameutil': nameutil,
 									'prenomutil': prenomutil,
@@ -228,10 +283,11 @@
 										alert('Nom d\'utilisateur déjà pris!');
 									}
 									else{
-                                                                        $("#listutil option[value='"+data.id+"']").remove();
-                                                                        hide_user_form();
+									$("#listutil option[value='"+data.id+"']").remove();
 									$("#listutil").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
+									hide_user_form();									
 									}
+                                                                        
 									}
 								});
 								});
@@ -256,6 +312,7 @@
 									//Supprimer la donnee de la liste select/option
 									$("#listutil option[value='"+id[0]+"']").remove();
                                                                         $("#listutil").val('default').change();
+                                                                        hide_user_form();
 									}
 								});
 						}

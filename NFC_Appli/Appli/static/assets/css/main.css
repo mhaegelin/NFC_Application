@@ -25,6 +25,7 @@
 		line-height: 1;
 	}
 
+ 
 	ol, ul {
 		list-style: none;
 	}
@@ -2327,7 +2328,8 @@
 		font-weight: bold;
 		line-height: 1.5;
 		margin: 0 0 0.7em 0;
-		display: block;
+		display: inline-block;
+		
 		font-size: 1.1em;
 	}
 
