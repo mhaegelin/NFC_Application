@@ -25,7 +25,6 @@
 		line-height: 1;
 	}
 
- 
 	ol, ul {
 		list-style: none;
 	}
@@ -2323,13 +2322,24 @@
 
 		}
 
+	.opt label {
+			color: #FFFFFF;
+			font-weight: normal;
+			font-size: 16px;
+			outline: none;
+	 }
+	 
+	 .opt {
+    	 background-color: #312450;
+	     outline: none;
+	 }
+
 	label {
-		color: #ffffff;
+		color: #FFFFFF;
 		font-weight: bold;
 		line-height: 1.5;
 		margin: 0 0 0.7em 0;
 		display: inline-block;
-		
 		font-size: 1.1em;
 	}
 
@@ -2670,7 +2680,7 @@
 		}
 
 			ul.alt li {
-				border-top: solid 1px rgba(255, 255, 255, 0.15);
+				border-top: solid 1px rgba(255, 255, 0, 0.15);
 				padding: 0.5em 0;
 			}
 
@@ -2705,7 +2715,7 @@
 						font-family: FontAwesome;
 						font-style: normal;
 						font-weight: normal;
-						text-transform: none !important;
+						text-transform: none;
 					}
 
 					ul.icons li > a .label, ul.icons li > span .label {
@@ -2794,7 +2804,7 @@
 
 						ul.actions li > * {
 							width: 100%;
-							margin: 0 !important;
+							margin: 0;
 						}
 
 							ul.actions li > *.icon:before {

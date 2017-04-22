@@ -110,6 +110,6 @@ USE_TZ = True
 #    PROJECT_PATH + "/Appli/static",
 #)
 
-STATIC_ROOT = PROJECT_PATH + "/Appli/static"
+STATIC_ROOT = PROJECT_PATH + "/Appli/static/"
 
 STATIC_URL = '/static/'

@@ -74,7 +74,8 @@ def accueil(request):
 			liste_cours = Cours.objects.all()
 			liste_promo = Promotion.objects.all()
 			liste_fiche = Fiche.objects.all()
-			return render(request, 'accueil.html', {'user' : user, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo, 'liste_fiche' : liste_fiche})
+			liste_groupe = Groupe.objects.all()
+			return render(request, 'accueil.html', {'user' : user, 'liste_groupe' : liste_groupe, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo, 'liste_fiche' : liste_fiche})
 
 		else: #Professeur (Non-administrateur)
 			request.session['userid'] = user.idutil
@@ -98,17 +99,108 @@ def ajaxlistetud(request):
 
 
 def ajaxetud(request):
+    import json
     idetud = request.GET.get('id', None)
     etud = Etudiant.objects.get(idetud=idetud)
     name = etud.nometud
     surname = etud.prenometud
     mail = etud.mailetud
+    tracenfc = etud.tracenfc
+    listegroupes = Appartient.objects.filter(idetud=idetud).values('idgroupe')
     data = {
     'name': name,
     'surname': surname,
-    'mail': mail
+    'mail': mail,
+    'tracenfc': tracenfc,
+    'groupes': list(listegroupes)
     }
     return JsonResponse(data)
+
+def is_number(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
+def ajaxaddetud(request):
+    import json
+    etudnom = request.GET.get('etudnom', None)
+    etudprenom = request.GET.get('etudprenom', None)
+    etudmail = request.GET.get('etudmail', None)
+    etudtracenfc = request.GET.get('etudtracenfc', None)
+    etudgroupes = request.GET.get('etudgroupes', None)
+    idpromo = request.GET.get('idpromo', None)
+    promo = Promotion.objects.get(idpromo=idpromo)
+    etud = Etudiant(nometud=etudnom, prenometud=etudprenom, mailetud=etudmail, tracenfc=etudtracenfc, hasbadged=0, idpromo=promo)
+    etud.save()
+    lastetud = Etudiant.objects.latest('idetud')
+    idetud = lastetud.idetud
+    cpt=0
+    for i in range(len(etudgroupes)):
+		if is_number(etudgroupes[i]):
+			cpt=10*cpt+int(etudgroupes[i])
+		else:
+			if cpt!=0:
+			    groupe = Groupe.objects.get(idgroupe=cpt)
+			    appartient = Appartient(idgroupe=groupe, idetud=etud)
+			    appartient.save()
+			    cpt=0
+    
+    data={
+    'idetud': idetud,
+    'nom': etudnom,
+    'prenom': etudprenom
+    }
+    return JsonResponse(data)
+    
+
+def ajaxchangeetud(request):
+    import json
+    idetud = request.GET.get('idetud', None)
+    etudnom = request.GET.get('etudnom', None)
+    etudprenom = request.GET.get('etudprenom', None)
+    etudmail = request.GET.get('etudmail', None)
+    etudtracenfc = request.GET.get('etudtracenfc', None)
+    etudgroupes = request.GET.get('etudgroupes', None)
+    etud = Etudiant.objects.get(idetud=idetud)
+    etud.nometud = etudnom
+    etud.prenometud = etudprenom
+    etud.mailetud = etudmail
+    etud.tracenfc = etudtracenfc
+    etud.save()
+    cpt=0
+    Appartient.objects.filter(idetud=idetud).delete()    
+    for i in range(len(etudgroupes)):
+        if is_number(etudgroupes[i]):
+            cpt=10*cpt+int(etudgroupes[i])
+        else:
+            if cpt!=0:
+                groupe = Groupe.objects.get(idgroupe=cpt)
+                appartient = Appartient(idgroupe=groupe, idetud=etud)
+                appartient.save()
+                cpt=0
+    
+    data={
+    'idetud': idetud,
+    'nom': etudnom,
+    'prenom': etudprenom
+    }
+    return JsonResponse(data)
+    
+
+def ajaxdeletud(request):
+    import json
+    idetud = request.GET.get('idetud', None)
+    print idetud
+    etud = Etudiant.objects.get(idetud=idetud)
+    etud.delete()
+    data = {
+    'idetud':idetud
+    }
+    return JsonResponse(data)
+
 
 def ajaxutil(request):
     idutil = request.GET.get('id', None)

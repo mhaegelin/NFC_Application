@@ -9,12 +9,15 @@
 		{% load static %}
 		<title>Application eLOG</title>
 		<meta charset="utf-8" />
+		<!--<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>-->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-		<link rel="stylesheet" href="{% static "assets/css/main.css" %}"/>
+		<link rel="stylesheet" href="{% static 'assets/css/main.css' %}"/>
+		<link rel="stylesheet" href="{% static 'assets/css/sumoselect.css' %}"/>
 		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
-		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+		<script src=" {% static 'assets/js/jquery.sumoselect.js' %}"></script>
 	</head>
 	<body>
 		<!-- Sidebar -->
@@ -321,26 +324,121 @@
 				<!-- Two -->
 					<section id="two" class="wrapper style1 fullscreen fade-up">
 						<div class="inner">
-							<h2>Selectionner un etudiant ou #NouvelEtudiant#</h2>
+							<h2>Selectionner la promotion à gérer</h2>
 							<p>Le formulaire mettra ses champs à jour automatiquement : </p>
 							<div class="split style1">
 								<section>
 									<select id="listpromo">
-									<option>#Selectionner une promotion#</option>
+									<option value='default'>#Selectionner une promotion#</option>
 									{% for promo in liste_promo %}
 									<option> {{promo.idpromo}} {{promo.intitulepromo}}</option>
 									{% endfor %}
 									</select>
-									<hr>
+									<ul class="actions" align="right">
+											<li><a class="button special disabled" onClick="display_add_form();action_ajouter_etud();" name="add_etud" id="add_etud">Ajouter</a></li>
+											<li><a class="button special disabled" onClick="display_change_form();action_change_etud();" name="change_etud" id="change_etud">Modifier</a></li>
+											<li><a class="button special disabled" onClick="display_drop_form();action_del_etud();" name="drop_user" id="drop_etud">Supprimer</a></li>
+									</ul>		
+									<div id="listetud_form" hidden="true">
 									<select id="listetud">
-									<option>#NoSelection#</option>									
+									<option>#Selectionner un etudiant#</option>			
 									</select>
-									<hr>
-		  							<script>
-									        $("#listetud").change(function () {
+									</div>
+									<form method="post" action="/Appli/accueil/">
+										{% csrf_token %}
+										<div id="etud_form" hidden="true">
+										<div class="split">
+										<section>
+										<div class="field">
+											<label for="name">Nom d'etudiant</label>
+											<input type="text" name="name" id="name" />
+										</div>
+										</section>
+										<section>
+										<div class="field">
+											<label for="prenom">Prenom etudiant</label>
+											<input type="text" name="surname" id="surname" />
+										</div>
+										</section>
+										</div>
+										<div class="split">
+										<section>
+										<div class="field">
+											<label for="prenom">Mail etudiant</label>
+											<input type="text" name="mail" id="mail" />
+										</div>
+										</section>
+										<section>
+											<label for="groupes">Liste des groupes</label>
+											<span id="listegp"><select id="listegroupes" name="listegroupes" multiple="multiple" style="border-radius:3px;height:2.75em;outline-color:orange;background-color:rgb(98,76,166);width:14.6em;">
+											{% for groupe in liste_groupe %}
+											<option value="{{ groupe.idgroupe }}"> {{ groupe.idgroupe }} {{ groupe.intitulegroupe }}</option>
+											{% endfor %}
+											</select></span>
+										</section>
+										</div>
+										<table style="max-width:600px">
+											<tr>
+											<td style="vertical-align:bottom"><label for="tracenfc">Trace NFC</label></td>
+											<td style="vertical-align:bottom"><input type="text" value="Press button to scan.." name="tracenfcetud" id="tracenfcetud" readonly/></td>
+											<td><input type="hidden"  name="scanningetud" id="scanningetud" value="1">
+												<div id="abortbuttonetud" hidden="true"><input type="button" name="abortetud" id="abortetud" value="Annuler" onclick="AnnulerEtud();"></div>
+												<div id="scanbuttonetud"><input type="button" name="scanetud" id="scanetud" value="Scanner" onclick="ScannerEtud();"></div>
+											</td>
+											</tr>
+										</table>
+										</div>
+										<div id="etud_button" hidden="true">
+										<ul class="actions" align="right">
+											<li><a class="button" id="validationetud">Valider</a></li>
+											<li><a onclick="hide_etud_form();empty_etud_form();" class="button">Annuler</a></li>
+										</ul>
+										</div>
+									</form>
+								</section>
+							</div>
+						</div>
+					</section>
+					<script>
+					function AnnulerEtud(){
+						$("#scanningetud").val("0");
+						$("#tracenfcetud").val("Press button to scan..");
+					}
+					function ScannerEtud(){
+						
+						if ($("#scanningetud").val()=="1") {
+						$.ajax({
+						url: '/Appli/update_scanning/',
+						data: {},
+						dataType: 'json',
+						success: function (data) {
+								if (jQuery.isEmptyObject(data)){
+								setTimeout(ScannerEtud, 1000);
+									$("#scanbuttonetud").hide();
+									$("#abortbuttonetud").show();
+									$("#tracenfcetud").val("Scanning..");
+								}
+								else{
+									$("#tracenfcetud").val(data.tracenfc);
+									$("#abortbuttonetud").hide();
+									$("#scanbuttonetud").show();
+								}
+						}
+						});
+					}
+					else{
+						$("#scanningetud").val("1");
+						$("#abortbuttonetud").hide();
+						$("#scanbuttonetud").show();
+					}
+					}
+						
+					$("#listetud").change(function () {
 									        var username = $("#listetud option:selected").text();
-										var id = username.split(' ');
-										$.ajax({
+											var id = username.split(' ');
+											if (id[0]!="#Selectionner"){
+											$("#validationetud").removeClass('button special disabled').addClass('button');
+											$.ajax({
 											url: '/Appli/accueil/ajaxetud',
 											data: {
 											  'id': id[0]
@@ -350,64 +448,203 @@
 											    $("#name").val(data.name);
 											    $("#surname").val(data.surname);
 											    $("#mail").val(data.mail);
+											    $("#tracenfcetud").val(data.tracenfc);
+											    for(var i=0; i<$("#listegroupes option").length ; i++){
+												$('#listegroupes')[0].sumo.unSelectItem(i);
+												}
+											    for (var i=0 ; i<data.groupes.length; i++){
+												$('#listegroupes')[0].sumo.selectItem(data.groupes[i].idgroupe-1);
+												}
 											}
 										      });
+										    }
+										    else{
+												empty_etud_form();
+												$("#validationetud").removeClass('button').addClass('button special disabled');
+											}
 									    });
 									    
-									    $("#listpromo").change(function() {
-											load_listetud_accueil();
-										});
+					function empty_etud_form(){
+						$("#name").val("");
+						$("#surname").val("");
+						$("#mail").val("");
+						$("#tracenfcetud").val("Press button to scan..");
+						for(var i=0; i<$("#listegroupes option").length ; i++){
+						$('#listegroupes')[0].sumo.unSelectItem(i);
+						}
+					};
+					
+					
+					$("#listpromo").change(function() {
+						if ($("#listpromo").val() == "default"){
+						$("#add_etud").removeClass('button').addClass('button special disabled');
+						$("#change_etud").removeClass('button').addClass('button special disabled');
+						$("#drop_etud").removeClass('button').addClass('button special disabled');
+						}
+						else{
+						load_listetud_accueil();
+						$("#add_etud").removeClass('button special disabled').addClass('button');
+						$("#change_etud").removeClass('button special disabled').addClass('button');
+						$("#drop_etud").removeClass('button special disabled').addClass('button');
+					}
+					});
+					
+					function display_add_form() { // Affiche formulaire ajout etudiant
+					$("#listetud_form").hide();
+					$("#etud_button").show();
+					$("#etud_form").show();
+					$("#add_etud").removeClass('button').addClass('button special disabled');
+					$("#change_etud").removeClass('button').addClass('button special disabled');
+					$("#drop_etud").removeClass('button').addClass('button special disabled');
+					$("#listpromo").prop('disabled', true);
+					};
+					
+					function display_change_form() { // Affiche formulaire changement etudiant
+					$("#listetud_form").show();
+					$("#etud_button").show();
+					$("#etud_form").show();
+					$("#add_etud").removeClass('button').addClass('button special disabled');
+					$("#change_etud").removeClass('button').addClass('button special disabled');
+					$("#drop_etud").removeClass('button').addClass('button special disabled');
+					$("#listpromo").prop('disabled', true);
+					};
+					
+					function hide_etud_form() { // Masquage du formulaire
+					$("#listetud_form").hide();
+					$("#etud_button").hide();
+					$("#etud_form").hide();
+					$("#add_etud").removeClass('button').addClass('button special disabled');
+					$("#change_etud").removeClass('button').addClass('button special disabled');
+					$("#drop_etud").removeClass('button').addClass('button special disabled');
+					$("#listpromo").prop('disabled', false);
+					$("#listpromo").val('default').change();
+					};
+					
+					function display_drop_form() { // Affiche formulaire suppression etudiant
+						$("#listetud_form").show();
+						$("#etud_button").show();
+						$("#add_etud").removeClass('button').addClass('button special disabled');
+						$("#change_etud").removeClass('button').addClass('button special disabled');
+						$("#drop_etud").removeClass('button').addClass('button special disabled');
+						$("#listpromo").prop('disabled', true);
+					};
+					
+					function load_listetud_accueil() {
 						
-										function load_listetud_accueil() {
-										
-											var promo = $("#listpromo").val();
-											var id = promo.split(' ');
-											
-											$.ajax({
-												url: '/Appli/accueil/ajaxlistetud',
-												data: {
-													'id': id[0]
-												},
-												dataType: 'json',
-												success: function (data) {
-													//Supprimer les elements préalablement dans le select option
-													$('#listetud')
-													.find('option')
-													.remove()
-													.end();
-													$("#listetud").append('<option value=0>#NoSelection#</option>');
-													listetud = eval(data.listetud);
-													for (var key in listetud) {
-														$("#listetud").append('<option value='+key+'>'+listetud[key].input_idetud + ' ' + listetud[key].input_prenometud
-														+' ' + listetud[key].input_nometud+'</option>');
-													}
-												}
-											});
-										}
-   	  								  </script>
-									<form method="post" action="/Appli/accueil/">
-										{% csrf_token %}
-										<div class="field">
-											<label for="name">Nom d'etudiant</label>
-											<input type="text" name="name" id="name" />
-										</div>
-										<div class="field">
-											<label for="prenom">Prenom etudiant</label>
-											<input type="text" name="surname" id="surname" />
-										</div>
-										<div class="field">
-											<label for="prenom">Mail etudiant</label>
-											<input type="text" name="mail" id="mail" />
-										</div>
-										<ul class="actions" align="right">
-											<li><a href="" class="button submit">Enregistrer</a></li>
-											<li><a href="" class="button submit">Supprimer</a></li>
-										</ul>
-									</form>
-								</section>
-							</div>
-						</div>
-					</section>
+						var promo = $("#listpromo").val();
+						var id = promo.split(' ');
+						
+						$.ajax({
+							url: '/Appli/accueil/ajaxlistetud',
+							data: {
+								'id': id[0]
+							},
+							dataType: 'json',
+							success: function (data) {
+								//Supprimer les elements préalablement dans le select option
+								$('#listetud')
+								.find('option')
+								.remove()
+								.end();
+								$("#listetud").append('<option value="default">#Selectionner un etudiant#</option>');
+								listetud = eval(data.listetud);
+								for (var key in listetud) {
+									$("#listetud").append('<option value='+listetud[key].input_idetud+'>'+listetud[key].input_idetud + ' ' + listetud[key].input_prenometud
+									+' ' + listetud[key].input_nometud+'</option>');
+								}
+							}
+						});
+					}
+								
+					function action_ajouter_etud() {
+							//change l'action du bouton valider suite à clic sur ajout
+							//$("#validationetud").removeClass('button').addClass('button special disabled');
+							$("#validationetud").unbind('click');
+							$("#validationetud").bind('click', function(){
+								//set your method - validation
+								//alert('Validation -- ajout');
+								var etudnom = $("#name").val();
+								var etudprenom = $("#surname").val();
+								var etudmail = $("#mail").val();
+								var etudtracenfc = $("#tracenfcetud").val();
+								var etudgroupes = $("#listegroupes").val();
+								var idpromo = $("#listpromo").val().split(' ');
+								etudgroupes = JSON.stringify(etudgroupes);
+								$.ajax({
+									url: '/Appli/accueil/ajaxaddetud',
+									data: {
+									'etudnom': etudnom,
+									'etudprenom': etudprenom,
+									'etudmail': etudmail,
+									'etudtracenfc': etudtracenfc,
+									'etudgroupes': etudgroupes,
+									'idpromo': idpromo[0]
+									},
+									dataType: 'json',
+									success: function (data) {
+                                    $("#listetud").append('<option value='+data.idetud+'>'+data.idetud+' '+data.prenom+' '+data.nom+'</option>');
+									hide_etud_form();
+									empty_etud_form();
+									}
+								});
+								});
+						}
+						
+						
+					function action_change_etud() {
+							$("#validationetud").removeClass('button').addClass('button special disabled');
+							$("#validationetud").unbind('click');
+							$("#validationetud").bind('click', function(){
+								//set your method - validation
+								//alert('Validation -- ajout');
+								var etudnom = $("#name").val();
+								var etudprenom = $("#surname").val();
+								var etudmail = $("#mail").val();
+								var etudtracenfc = $("#tracenfcetud").val();
+								var etudgroupes = $("#listegroupes").val();
+								var idetud = $("#listetud").val().split(' ');
+								etudgroupes = JSON.stringify(etudgroupes);
+								$.ajax({
+									url: '/Appli/accueil/ajaxchangeetud',
+									data: {
+									'idetud': idetud[0],
+									'etudnom': etudnom,
+									'etudprenom': etudprenom,
+									'etudmail': etudmail,
+									'etudtracenfc': etudtracenfc,
+									'etudgroupes': etudgroupes
+									},
+									dataType: 'json',
+									success: function (data) {
+                                    $("#listetud").append('<option value='+data.idetud+'>'+data.idetud+' '+data.prenom+' '+data.nom+'</option>');
+									hide_etud_form();
+									empty_etud_form();
+									}
+								});
+								});
+						}
+						
+						
+					function action_del_etud() {
+							$("#validationetud").unbind('click');
+							$("#validationetud").bind('click', function(){
+								var idetud = $("#listetud").val().split(' ');
+								var idpromo = $("#listpromo").val().split(' ');
+								$.ajax({
+									url: '/Appli/accueil/ajaxdeletud',
+									data: {
+									'idetud': idetud[0],
+									'idpromo': idpromo[0]
+									},
+									dataType: 'json',
+									success: function (data) {
+                                    $("#listetud option[value='"+data.idetud+"']").remove();
+									empty_etud_form();
+									}
+								});
+								});
+						}
+					</script>
 
 				<!-- Three -->
 					<section id="three" class="wrapper style3 fullscreen fade-up">
@@ -566,13 +803,13 @@
 								var nameutil = $("#nameutil").val();
 								var prenomutil = $("#prenomutil").val();
 								var mailutil = $("#mailutil").val();
-                                                                var usertmp = $("#listfiche").val();
+								var usertmp = $("#listfiche").val();
 								var id = usertmp.split(' ');
 								
 								$.ajax({
 									url: '/Appli/accueil/changeuser',
 									data: {
-                                                                        'id': id[0],
+									'id': id[0],
 									'username': username,
 									'nameutil': nameutil,
 									'prenomutil': prenomutil,
@@ -623,13 +860,11 @@
 			</footer>
 
 		<!-- Scripts -->
-			<script src=" {% static "assets/js/jquery.min.js" %}"></script>
-			<script src=" {% static "assets/js/jquery.scrollex.min.js" %}"></script>
-			<script src=" {% static "assets/js/jquery.scrolly.min.js" %}"></script>
-			<script src=" {% static "assets/js/skel.min.js" %}"></script>
-			<script src=" {% static "assets/js/util.js" %}"></script>
+			<script>
+				$(document).ready(function () {
+						  $('#listegroupes').SumoSelect();
+					  });
+			</script>
 			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
-			<script src="{% static "assets/js/main.js" %}"></script>
-
 	</body>
 </html>

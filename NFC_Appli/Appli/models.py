@@ -84,7 +84,7 @@ class Utilisateur(models.Model):
 
 class Appartient(models.Model):
     idgroupe = models.ForeignKey(Groupe, models.DO_NOTHING, db_column='IDGroupe')  # Field name made lowercase.
-    idetud = models.ForeignKey(Etudiant, models.DO_NOTHING, db_column='IDEtud')  # Field name made lowercase.
+    idetud = models.ForeignKey(Etudiant, on_delete=models.CASCADE, db_column='IDEtud')  # Field name made lowercase.
 
     class Meta:
         db_table = 'appartient'
