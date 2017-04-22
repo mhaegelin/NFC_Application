@@ -45,6 +45,8 @@ CREATE TABLE Utilisateur(
         TraceNFC    Varchar (25) ,
         ValidationKey Varchar (100),
         Validated Integer,
+	isScanning Integer,
+	hasBadged Integer,
         PRIMARY KEY (idUtil )
 )ENGINE=InnoDB;
 

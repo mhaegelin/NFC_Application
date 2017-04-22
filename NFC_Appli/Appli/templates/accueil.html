@@ -124,7 +124,7 @@
 												if ($("#scanning").val()=="1") {
 												$.ajax({
 												url: '/Appli/update_scanning/',
-												data: {},
+												data: {'stopscanning':0},
 												dataType: 'json',
 												success: function (data) {
 														if (jQuery.isEmptyObject(data)){
@@ -145,6 +145,13 @@
 												$("#scanning").val("1");
 												$("#abortbutton").hide();
 												$("#scanbutton").show();
+												$.ajax({
+												url: '/Appli/update_scanning/',
+												data: {'stopscanning':1},
+												dataType: 'json',
+												success: function (data) {
+												}
+												});
 											}
 											}
 										</script>

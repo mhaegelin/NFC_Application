@@ -39,22 +39,30 @@ def signup(request):
 """
 
 def update_scanning(request):
-	admin = Utilisateur.objects.get(username="Admin")
-	if admin.isscanning == 0:
-		admin.isscanning = 1
-		admin.save()
-	traces = Trace.objects.all()
-	ntraces = traces.count()
-	if ntraces>0:
-		data = { 'tracenfc': traces.first().tracenfc }
-		traces.first().delete()
-		admin.isscanning = 0
-		admin.save()
-		return JsonResponse(data)
-	else:
-		empty_data = {}
-		return JsonResponse(empty_data)
-
+    stopscanning=request.GET.get('stopscanning', None)
+    print stopscanning
+    admin = Utilisateur.objects.get(username="Admin")
+    if stopscanning==str(0):
+        if admin.isscanning == 0:
+		    admin.isscanning = 1
+		    admin.save()
+		    print 'Ok!!'
+        traces = Trace.objects.all()
+        ntraces = traces.count()
+        if ntraces>0:
+            data = { 'tracenfc': traces.first().tracenfc }
+            traces.first().delete()
+            admin.isscanning = 0
+            admin.save()
+            return JsonResponse(data)
+        else:
+            empty_data = {}
+            return JsonResponse(empty_data)
+    else:
+        admin.isscanning=0
+        admin.save()
+        empty_data = {}
+        return JsonResponse(empty_data)
 
 def accueil(request):
 	import hashlib
