@@ -255,7 +255,6 @@ def ajaxfiche(request):
             dict = etud.as_json()
             dict['presence'] = presence    
             liste = liste + [dict]
-    print liste
     data = {
         'id': idfiche,
         'valide': valide,

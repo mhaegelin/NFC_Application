@@ -116,8 +116,10 @@ INSERT INTO `appartient` (`IDGroupe`, `IDEtud`) VALUES
 INSERT INTO `a_groupe` (`id`, `IDCours`, `IDGroupe`) VALUES
 (1, 1, 3),
 (4, 3, 3),
-(2, 1, 4),
-(3, 2, 4);
+(2, 5, 1),
+(3, 2, 1),
+(5, 4, 1),
+(6, 4, 2);
 
 INSERT INTO `enseigne` (`NomSalle`, `IDCours`, `idUtil`, `IDFiche`) VALUES
 ('A301', 1, 2 , 1),
