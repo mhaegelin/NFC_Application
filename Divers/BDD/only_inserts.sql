@@ -110,10 +110,7 @@ INSERT INTO `appartient` (`IDGroupe`, `IDEtud`) VALUES
 (3, 1),
 (3, 2),
 (3, 3),
-(3, 10),
-(4, 1),
-(4, 2),
-(4, 3);
+(3, 10);
 
 
 INSERT INTO `a_groupe` (`id`, `IDCours`, `IDGroupe`) VALUES
