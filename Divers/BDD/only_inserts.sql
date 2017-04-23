@@ -84,13 +84,13 @@ INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGr
 (5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00', 4);
 
 
-INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
-(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', false, 'EFZTREF'),
-(2, 'Philippe', 'Clauss', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', `email`, 'pc', false, 'EFZTREF'),
-(3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, 'EFZTREF'),
-(4, 'Stella', 'Marc', 'toto', `email`, `username`, false, 'EFZTREF'),
-(5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, 'EFZTREF'),
-(6, 'Admin', 'Admin', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', NULL, `Admin`, true, NULL);
+INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `isScanning`, `TraceNFC`, `ValidationKey`, `Validated`) VALUES
+(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', false, true, 'EFZTREF', 'randomValidationKey', false),
+(2, 'Philippe', 'Clauss', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', `email`, 'pc', false, false, 'EFZTREF', 'randomValidationKey', true),
+(3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, false, 'EFZTREF', 'randomValidationKey', false),
+(4, 'Stella', 'Marc', 'toto', `email`, `username`, false, false, 'EFZTREF', 'randomValidationKey', false),
+(5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, false, 'EFZTREF', 'randomValidationKey', false),
+(6, 'Admin', 'Admin', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'admin', true, false, 'EFZTREF', 'randomValidationKey', false);
 
 
 INSERT INTO `contient` (`IDFiche`, `IDEtud`) VALUES

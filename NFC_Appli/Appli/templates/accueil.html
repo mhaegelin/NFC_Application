@@ -698,7 +698,7 @@
 									<br>
 									<hr>
    	  								<div id="fiche_form" hidden="true">
-									<form method="post" action="#">
+									<form method="post" action="{% url 'printfiche' %}">
 										{% csrf_token %}
 										<div class="vertical">
 											<section>
@@ -708,19 +708,10 @@
 															<tr>
 																<th>Nom</th>
 																<th>Prénom</th>
+																<th>Présence</th>
 															</tr>
 														</thead>									
 														<tbody id="listEtudFiche">
-														{% for etu in list_etu %}
-															<tr>
-																<td>
-																	{{ etu.nometud }}
-																</td>
-																<td>
-																	{{ etu.prenometud }}
-																</td>
-															</tr>
-														{% endfor %}
 														</tbody>
 													</table>
 												</div>
@@ -733,9 +724,10 @@
 											</section>
 										</div>
 										<ul class="actions" align="right">
+											<input type="hidden" id="print_fiche" name="print_fiche">
 											<li><a class="button" onClick="action_modify();" name="change_fiche" id="change_fiche">Modifier</a></li>
-											<li><a href="printfiche" class="button" onClick="print_fiche();" name="print_fiche" id="print_fiche">Imprimer</a></li>
-											<li><a class="button" onClick="hide_fiche_form();" id="annulation">Annuler</a></li>
+											<li><input class="button" type="submit" value="Imprimer"></li>
+											<li><a class="button" onClick="hide_fiche_form();" id="annulation">Retour</a></li>
 										</ul>
 									</form>
 									</div>
@@ -777,7 +769,7 @@
 								},
 								dataType: 'json',
 								success: function (data) {
-									$("#idfiche").val(data.id);
+									$("#print_fiche").attr("value", data.id)
 									if (data.valide == 0){
 										$("#validefiche").prop('checked', false);
 									}	
@@ -792,7 +784,7 @@
 									listetudfiche = eval(data.listetudfiche);
 									for (var key in listetudfiche) {
 										$("#listEtudFiche").append('<tr> <td>' + listetudfiche[key].input_prenometud
-										+'</td><td> ' + listetudfiche[key].input_nometud+'</td> </tr>');
+										+'</td><td>' + listetudfiche[key].input_nometud+'</td> <td>' + listetudfiche[key].presence+'</td></tr>');
 									}
 								}
 							});
@@ -800,61 +792,32 @@
 						
 						
 						function action_modify() {
-							//change l'action du bouton valider suite à clic sur modifier
-							$("#validation").unbind('click');
-							$("#annulation").unbind('click');
-							$("#validation").bind('click', function(){
-								//set your method - validation
-								//alert('Validation -- modifier');
-								var username = $("#username").val();
-								var nameutil = $("#nameutil").val();
-								var prenomutil = $("#prenomutil").val();
-								var mailutil = $("#mailutil").val();
-								var usertmp = $("#listfiche").val();
-								var id = usertmp.split(' ');
-								
-								$.ajax({
-									url: '/Appli/accueil/changeuser',
-									data: {
-									'id': id[0],
-									'username': username,
-									'nameutil': nameutil,
-									'prenomutil': prenomutil,
-									'mailutil': mailutil
-									},
-									dataType: 'json',
-									success: function (data) {
-									//Ajouter la donnee ds la liste select/option
-									if (jQuery.isEmptyObject(data)){
-										alert('Nom d\'utilisateur déjà pris!');
+							var id = $("#listfiche").val();
+							if ($("#validefiche").is(":checked")) {
+								var valide = 1;
+							} else {
+								var valide = 0;
+							}
+							
+							$.ajax({
+								url: '/Appli/accueil/changefiche',
+								data: {
+								'idFiche': id,
+								'valide': valide
+								},
+								dataType: 'json',
+								success: function (data) {
+									$("#idfiche").val(data.id);
+									if (data.valide == 0){
+										$("#validefiche").prop('checked', false);
+									}	
+									else {
+										$("#validefiche").prop('checked', true);
 									}
-									else{
-                                                                        $("#listfiche option[value='"+data.id+"']").remove();
-                                                                        hide_user_form();
-									$("#listfiche").append('<option value='+data.id+'>'+data.id+' '+data.first_name+' '+data.last_name+'</option>');
-									}
-									}
-								});
-								});
-							$("#annulation").bind('click', function(){
-								//set your method - validation
-								//alert('Annulation -- modifier');
-                                                                
+								}
 							});
 						}
 						
-						function print_fiche() {
-								var id = $("#listfiche").val();
-								$.ajax({
-									url: '/Appli/accueil/printfiche',
-									data: {
-									'id': id
-									},
-									dataType: 'json',
-									success: function (data) {
-									}
-								});
-						}
 					</script>
 			</div>
 		<!-- Footer -->

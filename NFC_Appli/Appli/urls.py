@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^accueil/printfiche$', views.printfiche, name='printfiche'),
 	url(r'^accueil/adduser$', views.adduser, name='adduser'),
     url(r'^accueil/changeuser$', views.changeuser, name='changeuser'),
+    url(r'^accueil/changefiche$', views.changefiche, name='changefiche'),
     url(r'^accueil/validateAccount$', views.validateAccount, name='validateAccount'),
     url(r'^trace$', views.trace, name='traceNFC'),
 ]

@@ -241,17 +241,22 @@ def ajaxfiche(request):
 	fiche = Fiche.objects.get(idfiche=idFiche)
 	idfiche = fiche.idfiche
 	valide = fiche.valide
-	#Ici deux cas se présentent : 
-	#Soit la fiche est validée : On récupère les étudiants validés sur la fiche et donc on va chercher dans la table Contient
-	#Soit la fiche n'est pas validée : On récupère les étudiants correspondants au groupe du cours correspondant
-	if (valide == 1):
-		listetud = Etudiant.objects.filter(contient__idfiche = idFiche)
-	else:
-		cours = Cours.objects.filter(enseigne__idfiche = idFiche) #Le cours correspondant à la fiche
-		listetud = Etudiant.objects.filter(appartient__idgroupe = cours[0].idgroupe)
-		
-	liste = [e.as_json() for e in listetud]
-
+	#On récupère les étudiants correspondants au groupe du cours actuel
+	cours = Cours.objects.filter(enseigne__idfiche = idFiche) #Le cours correspondant à la fiche
+	listetud = Etudiant.objects.filter(appartient__idgroupe = cours[0].idgroupe)
+	
+	liste = []
+	for user in listetud:
+		try:
+			presence = ' '
+			dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = user.idetud)
+		except Contient.DoesNotExist:
+			presence = 'Absent'
+		dict = user.as_json()
+		dict['presence'] = presence	
+		liste = liste + [dict]
+	
+	print liste
 	data = {
 		'id': idfiche,
 		'valide': valide,
@@ -433,9 +438,103 @@ def changeuser(request):
     empty_data={}
     return JsonResponse(empty_data)
     
+def changefiche(request):
+	idFiche = request.GET.get('idFiche', None)
+	valide = request.GET.get('valide', None)
+	fiche = Fiche.objects.get(idfiche=idFiche)
+	fiche.valide = valide
+	fiche.save()
+	data = {
+		'id': idFiche,
+		'valide': valide
+		}
+	return JsonResponse(data)
+    
+        
 def printfiche(request):
-	idfiche = request.GET.get('id', None)
-	return errorPage(request, "Impression de la fiche présomptive depuis le secrétariat.")
+	from reportlab.pdfgen import canvas
+	from reportlab.platypus import Table, TableStyle, Paragraph
+	from reportlab.lib.styles import getSampleStyleSheet
+	from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER
+	from reportlab.lib import colors, pagesizes
+	from reportlab.lib.units import cm
+	
+	idfiche = request.POST.get('print_fiche', None)
+	if idfiche is None:
+		return errorPage(request, "Impression impossible. La fiche n'est pas reconnue.")
+	
+	#On recupere le cours correspondant à la fiche
+	cours = Cours.objects.filter(enseigne__idfiche = idfiche)
+	
+	#On recupere le professeur correspondant à la fiche
+	prof = Utilisateur.objects.filter(enseigne__idfiche = idfiche)
+	
+	#On recupere la fiche
+	fiche = Fiche.objects.get(idfiche=idfiche)
+	
+	listetud = Etudiant.objects.filter(appartient__idgroupe = cours[0].idgroupe)
+
+	# Create the HttpResponse object with the appropriate PDF headers.
+	response = HttpResponse(content_type='application/pdf')
+	response['Content-Disposition'] = 'attachment; filename="FichePresomptive'+str(idfiche)+'.pdf"'
+
+	# Create the PDF object, using the response object as its "file."
+	p = canvas.Canvas(response)
+	
+	(width, height) = pagesizes.A4
+	
+	styles = getSampleStyleSheet()
+	styleN = styles["BodyText"]
+	styleN.alignment = TA_LEFT
+	styleBH = styles["Normal"]
+	styleBH.alignment = TA_CENTER
+
+	# Draw things on the PDF. Here's where the PDF generation happens.
+	# See the ReportLab documentation for the full list of functionality.
+	p.drawString(width/2 - 50, height - 30, "FICHE PRESOMPTIVE N°"+str(idfiche))
+	p.setLineWidth(.3)
+	p.line(10,height - 50,width - 10,height - 50)
+	
+	p.drawString(15, height - 100, "Professeur : "+str(prof[0].first_name)+" "+str(prof[0].last_name))
+	p.drawString(15, height - 150, "Cours : "+str(cours[0].intitulecours))
+	if fiche.valide == 1:
+		p.drawString(width - 120, height - 100, "Statut : Validé")
+	else:
+		p.drawString(width - 120, height - 100, "Statut : Non validé")
+
+	p.line(10,height - 175,width - 10,height - 175)
+	
+	hnom = Paragraph('''<b>Nom</b>''', styleBH)
+	hprenom = Paragraph('''<b>Prenom</b>''', styleBH)
+	hpresence = Paragraph('''<b>Présence</b>''', styleBH)
+
+	# Need a place to store our table rows
+	data = []
+	data.append([hnom, hprenom, hpresence])
+	for user in listetud:
+		try:
+			presence = ' '
+			dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = user.idetud)
+		except Contient.DoesNotExist:
+			presence = 'Absent'
+		# Add a row to the table
+		data.append([user.nometud, user.prenometud, presence])
+		
+	# Create the table
+	table = Table(data, colWidths=[width/3.0 - 10] )
+
+	table.setStyle(TableStyle([
+						   ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
+						   ('BOX', (0,0), (-1,-1), 1, colors.black),
+						   ]))
+
+	tableW, tableH = table.wrapOn(p, 0, 0)
+	table.drawOn(p, 15, height - 200 - tableH)
+	# Close the PDF object cleanly, and we're done.
+	p.showPage()
+	p.save()
+	return response
+    
 
 def validateAccount(request):
     key = request.GET.get('validationkey', None)
