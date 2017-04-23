@@ -5,7 +5,7 @@
 
 #-------Declaration evenement--------------------------------
 
-SET GLOBAL event_scheduler = ON;
+SET GLOBAL event_scheduler = 1;
 
 
 CREATE EVENT RESET_MORNING
@@ -38,11 +38,11 @@ INSERT INTO `Promotion` (`IDPromo`, `IntitulePromo`) VALUES
 (2, 'M1 ISI'),
 (3, 'ENSIIE');
 
-INSERT INTO `Groupe` (`IDGroupe`, `IntituleGroupe`) VALUES
-(1, 'Groupe 1 Compilation'),
-(2, 'Groupe 1 Anglais'),
-(3, 'Groupe CM Compilation'),
-(4, 'Groupe 1 Algo Dist');
+INSERT INTO `Groupe` (`IDGroupe`, `IntituleGroupe`, `IDPromo`) VALUES
+(1, 'Groupe 1 Compilation', 1),
+(2, 'Groupe 1 Anglais', 1),
+(3, 'Groupe CM Compilation', 3),
+(4, 'Groupe 1 Algo Dist', 1);
 
 
 INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
@@ -51,7 +51,6 @@ INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
 (3, false),
 (4, false),
 (5, false);
-
 
 
 INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadged`, `TraceNFC`, `IDPromo`) VALUES
@@ -74,18 +73,16 @@ INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadge
 (17, 'Nom14', 'Prenom14', 'prenom14.nom14@gmail.com', false, "FFFFF",3);
 
 
-
-
-INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGroupe`) VALUES
-(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00', 3),
-(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00', 1),
-(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00', 2),
-(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00', 1),
-(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00', 4);
+INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`) VALUES
+(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00'),
+(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00'),
+(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00'),
+(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00'),
+(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00');
 
 
 INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `isScanning`, `TraceNFC`, `ValidationKey`, `Validated`) VALUES
-(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', false, true, 'EFZTREF', 'randomValidationKey', false),
+(1, 'Cedric', 'Bastoul', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'cb', false, false, 'EFZTREF', 'randomValidationKey', false),
 (2, 'Philippe', 'Clauss', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', `email`, 'pc', false, false, 'EFZTREF', 'randomValidationKey', true),
 (3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, false, 'EFZTREF', 'randomValidationKey', false),
 (4, 'Stella', 'Marc', 'toto', `email`, `username`, false, false, 'EFZTREF', 'randomValidationKey', false),
@@ -119,6 +116,11 @@ INSERT INTO `appartient` (`IDGroupe`, `IDEtud`) VALUES
 (4, 3);
 
 
+INSERT INTO `a_groupe` (`id`, `IDCours`, `IDGroupe`) VALUES
+(1, 1, 3),
+(4, 3, 3),
+(2, 1, 4),
+(3, 2, 4);
 
 INSERT INTO `enseigne` (`NomSalle`, `IDCours`, `idUtil`, `IDFiche`) VALUES
 ('A301', 1, 2 , 1),

@@ -14,15 +14,15 @@ from django.core.urlresolvers import reverse
 import datetime
 from django.contrib import messages
 
-def errorPage(request, errorMessage):#Page regroupant toutes les erreurs de l'appli	
-	return render(request, 'error.html', {'errorMessage' : errorMessage})
+def errorPage(request, errorMessage):#Page regroupant toutes les erreurs de l'appli    
+    return render(request, 'error.html', {'errorMessage' : errorMessage})
 """
 def hello(request):
     return HttpResponse("Hello, world. You're at the Appli index.")
 
 def signup(request):
     import hashlib
-	#Ajouter l'utilisateur
+    #Ajouter l'utilisateur
     import time
     print time.time()
     uname = request.POST.get('username', '')
@@ -44,9 +44,9 @@ def update_scanning(request):
     admin = Utilisateur.objects.get(username="Admin")
     if stopscanning==str(0):
         if admin.isscanning == 0:
-		    admin.isscanning = 1
-		    admin.save()
-		    print 'Ok!!'
+            admin.isscanning = 1
+            admin.save()
+            print 'Ok!!'
         traces = Trace.objects.all()
         ntraces = traces.count()
         if ntraces>0:
@@ -65,45 +65,45 @@ def update_scanning(request):
         return JsonResponse(empty_data)
 
 def accueil(request):
-	import hashlib
-	#Verifier que l'utilisateur existe
-	uname = request.POST.get('name', '')
-	upass = request.POST.get('passwd', '')
-	hash_object = hashlib.sha1(upass)
-	hex_dig = hash_object.hexdigest()
-	try:
-		user = Utilisateur.objects.get(username=uname, password=hex_dig)
-	except ObjectDoesNotExist:
-		user = None
-	if user is not None: #Utilisateur reconnu
-		if user.issuperuser == 1: #Scolarite (Administrateur)
-			liste_utilisateurs = Utilisateur.objects.all()
-			liste_etudiants = Etudiant.objects.all()
-			liste_cours = Cours.objects.all()
-			liste_promo = Promotion.objects.all()
-			liste_fiche = Fiche.objects.all()
-			liste_groupe = Groupe.objects.all()
-			return render(request, 'accueil.html', {'user' : user, 'liste_groupe' : liste_groupe, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo, 'liste_fiche' : liste_fiche})
+    import hashlib
+    #Verifier que l'utilisateur existe
+    uname = request.POST.get('name', '')
+    upass = request.POST.get('passwd', '')
+    hash_object = hashlib.sha1(upass)
+    hex_dig = hash_object.hexdigest()
+    try:
+        user = Utilisateur.objects.get(username=uname, password=hex_dig)
+    except ObjectDoesNotExist:
+        user = None
+    if user is not None: #Utilisateur reconnu
+        if user.issuperuser == 1: #Scolarite (Administrateur)
+            liste_utilisateurs = Utilisateur.objects.all()
+            liste_etudiants = Etudiant.objects.all()
+            liste_cours = Cours.objects.all()
+            liste_promo = Promotion.objects.all()
+            liste_fiche = Fiche.objects.all()
+            liste_groupe = Groupe.objects.all()
+            return render(request, 'accueil.html', {'user' : user, 'liste_groupe' : liste_groupe, 'liste_etud' : liste_etudiants, 'liste_util' : liste_utilisateurs, 'liste_cours' : liste_cours, 'liste_promo' : liste_promo, 'liste_fiche' : liste_fiche})
 
-		else: #Professeur (Non-administrateur)
-			request.session['userid'] = user.idutil
-			request.session.set_expiry(0)
-			if user.validated == 1:
-				return redirect('fiche')
-			else:
-				return errorPage(request, 'Compte non activé.')
-	else:
-		return errorPage(request, 'Utilisateur inconnu.')
+        else: #Professeur (Non-administrateur)
+            request.session['userid'] = user.idutil
+            request.session.set_expiry(0)
+            if user.validated == 1:
+                return redirect('fiche')
+            else:
+                return errorPage(request, 'Compte non activé.')
+    else:
+        return errorPage(request, 'Utilisateur inconnu.')
 
 def ajaxlistetud(request):
-	import json
-	promo = request.GET.get('id', None)
-	listetud = Etudiant.objects.filter(idpromo=promo)
-	liste = [e.as_json() for e in listetud]
-	data = {
-		'listetud': json.dumps(liste)
-	}	
-	return JsonResponse(data)
+    import json
+    promo = request.GET.get('id', None)
+    listetud = Etudiant.objects.filter(idpromo=promo)
+    liste = [e.as_json() for e in listetud]
+    data = {
+        'listetud': json.dumps(liste)
+    }    
+    return JsonResponse(data)
 
 
 def ajaxetud(request):
@@ -147,14 +147,14 @@ def ajaxaddetud(request):
     idetud = lastetud.idetud
     cpt=0
     for i in range(len(etudgroupes)):
-		if is_number(etudgroupes[i]):
-			cpt=10*cpt+int(etudgroupes[i])
-		else:
-			if cpt!=0:
-			    groupe = Groupe.objects.get(idgroupe=cpt)
-			    appartient = Appartient(idgroupe=groupe, idetud=etud)
-			    appartient.save()
-			    cpt=0
+        if is_number(etudgroupes[i]):
+            cpt=10*cpt+int(etudgroupes[i])
+        else:
+            if cpt!=0:
+                groupe = Groupe.objects.get(idgroupe=cpt)
+                appartient = Appartient(idgroupe=groupe, idetud=etud)
+                appartient.save()
+                cpt=0
     
     data={
     'idetud': idetud,
@@ -235,34 +235,33 @@ def ajaxutil(request):
     return JsonResponse(data)
     
 def ajaxfiche(request):
-	import json
-	
-	idFiche = request.GET.get('id', None)
-	fiche = Fiche.objects.get(idfiche=idFiche)
-	idfiche = fiche.idfiche
-	valide = fiche.valide
-	#On récupère les étudiants correspondants au groupe du cours actuel
-	cours = Cours.objects.filter(enseigne__idfiche = idFiche) #Le cours correspondant à la fiche
-	listetud = Etudiant.objects.filter(appartient__idgroupe = cours[0].idgroupe)
-	
-	liste = []
-	for user in listetud:
-		try:
-			presence = ' '
-			dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = user.idetud)
-		except Contient.DoesNotExist:
-			presence = 'Absent'
-		dict = user.as_json()
-		dict['presence'] = presence	
-		liste = liste + [dict]
-	
-	print liste
-	data = {
-		'id': idfiche,
-		'valide': valide,
-		'listetudfiche': json.dumps(liste)
-	}
-	return JsonResponse(data)    
+    import json
+    idFiche = request.GET.get('id', None)
+    fiche = Fiche.objects.get(idfiche=idFiche)
+    idfiche = fiche.idfiche
+    valide = fiche.valide
+    #On récupère les étudiants correspondants au groupe du cours actuel
+    cours = Cours.objects.filter(enseigne__idfiche = idFiche) #Le cours correspondant à la fiche
+    agroupe = AGroupe.objects.filter(idcours=cours[0].idcours)
+    liste = []
+    for i in range(agroupe.count()):
+        listetud = Etudiant.objects.filter(appartient__idgroupe = agroupe[i].idgroupe)
+        for etud in listetud:
+            try:
+                presence = ' '
+                dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = etud.idetud)
+            except Contient.DoesNotExist:
+			    presence = 'Absent' 
+            dict = etud.as_json()
+            dict['presence'] = presence    
+            liste = liste + [dict]
+    print liste
+    data = {
+        'id': idfiche,
+        'valide': valide,
+        'listetudfiche': json.dumps(liste)
+    }
+    return JsonResponse(data)    
 
 def adduser(request):
     import time
@@ -306,91 +305,92 @@ def adduser(request):
     return JsonResponse(empty_data)
 
 def EcranLogin(request):
-	try:
-		del request.session['userid']
-	except KeyError:
-		pass
-	return render(request, "login.html")
+    try:
+        del request.session['userid']
+    except KeyError:
+        pass
+    return render(request, "login.html")
 
 def log_out(request):
-	return redirect('login')
+    return redirect('login')
 
 
 def fiche(request):
-	###On récupère l'id de l'utilisateur connecté
-	try:	
-		user = request.session['userid']
-	except KeyError:
-		user = None
-	if user is None:
-		return errorPage(request, 'Opération non autorisée.')
-	###	
-	
-	###On récupère la date et heure actuelle
-	date = datetime.datetime.now()
-	###
-	
-	#On récupère le cours correspondant au professeur concerné ET
-	#correspondant à la date et heure actuelle
-	#cours = Cours.objects.filter(enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
-	###DEBUG
-	cours = Cours.objects.filter(enseigne__idutil = user)
-	###
-	
-	###On récupère la fiche
-	fiche = Fiche.objects.filter(enseigne__idutil = user, enseigne__idcours = cours[0].idcours)
-	###
-	#On récupère le groupe correspondant au cours actuellement donné par le professeur concerné
-	groupe = Groupe.objects.filter(cours__idcours = cours[0].idcours)
-	#On récupère la liste des étudiants correspondants au groupe, on retire ceux n'ayant pas badgé
-	liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe).exclude(hasbadged = 0)
-	nbEtudiant = liste_etu.count()
-	context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours[0], 'fiche' : fiche[0].idfiche}
-	return render(request, "fiche.html", context)
+    ###On récupère l'id de l'utilisateur connecté
+    try:    
+        user = request.session['userid']
+    except KeyError:
+        user = None
+    if user is None:
+        return errorPage(request, 'Opération non autorisée.')
+    ###    
+    
+    ###On récupère la date et heure actuelle
+    date = datetime.datetime.now()
+    ###
+    
+    #On récupère le cours correspondant au professeur concerné ET
+    #correspondant à la date et heure actuelle
+    #cours = Cours.objects.filter(enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
+    ###DEBUG
+    cours = Cours.objects.filter(enseigne__idutil = user)
+    ###
+    
+    ###On récupère la fiche
+    fiche = Fiche.objects.filter(enseigne__idutil = user, enseigne__idcours = cours[0].idcours)
+    ###
+    #On récupère l'ensemble des groupes correspondant au cours actuellement donné par le professeur concerné
+    groupe = Groupe.objects.filter(agroupe__idcours = cours[0].idcours)
+    print "groupe count=", groupe.count()
+    #On récupère la liste des étudiants correspondants au groupe, on retire ceux n'ayant pas badgé
+    liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe).exclude(hasbadged = 0)
+    nbEtudiant = liste_etu.count()
+    context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours[0], 'fiche' : fiche[0].idfiche}
+    #context={}
+    return render(request, "fiche.html", context)
 """
-		cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
-		liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
-		nbEtudiant = liste_etu.count()
-		context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
-		return render(request, "fiche.html", context)
+        cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
+        liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
+        nbEtudiant = liste_etu.count()
+        context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
+        return render(request, "fiche.html", context)
 """
-		
+        
 def trace(request):
-    #print request.session['scanning']
     if request.method == 'POST':
         trace_NFC = request.POST.get('traceNFC')
 
         if trace_NFC is not None:
             import time
             from datetime import datetime
-	        #print time.strftime('%d/%m/%y %H:%M',time.localtime())
+            #print time.strftime('%d/%m/%y %H:%M',time.localtime())
             hour = int(time.strftime('%H', time.localtime()))
-	        #verifier que nous ne sommes pas dans une periode creuse
+            #verifier que nous ne sommes pas dans une periode creuse
             addToTrace = Trace(tracenfc = trace_NFC)
             if hour < 5 or hour > 18:
-				return errorPage(request, 'Unauthorized operation.')
-			
+                return errorPage(request, 'Unauthorized operation.')
+            
             try:
-				etud = Etudiant.objects.get(tracenfc=trace_NFC)
-				#tester aussi si l'utilisateur existe déjà dans Utilisateur.objects
+                etud = Etudiant.objects.get(tracenfc=trace_NFC)
+                #tester aussi si l'utilisateur existe déjà dans Utilisateur.objects
             except ObjectDoesNotExist:
-				try:
-					util = Utilisateur.objects.get(tracenfc=trace_NFC)
-				except ObjectDoesNotExist:
-					admin = Utilisateur.objects.get(username="Admin")
-					if admin.isscanning==1:
-						NFC = Trace(tracenfc=trace_NFC)
-						NFC.save()
-						return HttpResponse('Ok')
-					else:
-						return HttpResponse('Error')
-				
-				util.hasbadged = 1
-				util.save()
-				return errorPage(request, 'Unauthorized operation.')	
+                try:
+                    util = Utilisateur.objects.get(tracenfc=trace_NFC)
+                except ObjectDoesNotExist:
+                    admin = Utilisateur.objects.get(username="Admin")
+                    if admin.isscanning==1:
+                        NFC = Trace(tracenfc=trace_NFC)
+                        NFC.save()
+                        return HttpResponse('Ok')
+                    else:
+                        return HttpResponse('Error')
+                
+                util.hasbadged = 1
+                util.save()
+                return errorPage(request, 'Unauthorized operation.')    
             etud.hasbadged = 1
             etud.save()
-	
+    
     return errorPage(request, 'Unauthorized operation.')
     
 def deleteuser(request):
@@ -415,15 +415,15 @@ def changeuser(request):
         nomutil = request.GET.get('nameutil', None)
         util = Utilisateur.objects.get(idutil=idutil)
         util.username = username
-	#Si le mail a ete change par l'administrateur, alors redemander la validation
+    #Si le mail a ete change par l'administrateur, alors redemander la validation
         if util.email != mailutil and mailutil != '':
             from django.core.mail import send_mail
             key = util.validationkey
-	    send_mail('eLOG Mailing Confirmation',
-	    'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+key,
-		'NoReply@elog.com',
-		[mailutil],
-		fail_silently=False)
+        send_mail('eLOG Mailing Confirmation',
+        'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+key,
+        'NoReply@elog.com',
+        [mailutil],
+        fail_silently=False)
         util.email = mailutil
         util.first_name = prenomutil
         util.last_name = nomutil
@@ -439,101 +439,103 @@ def changeuser(request):
     return JsonResponse(empty_data)
     
 def changefiche(request):
-	idFiche = request.GET.get('idFiche', None)
-	valide = request.GET.get('valide', None)
-	fiche = Fiche.objects.get(idfiche=idFiche)
-	fiche.valide = valide
-	fiche.save()
-	data = {
-		'id': idFiche,
-		'valide': valide
-		}
-	return JsonResponse(data)
+    idFiche = request.GET.get('idFiche', None)
+    valide = request.GET.get('valide', None)
+    fiche = Fiche.objects.get(idfiche=idFiche)
+    fiche.valide = valide
+    fiche.save()
+    data = {
+        'id': idFiche,
+        'valide': valide
+        }
+    return JsonResponse(data)
     
         
 def printfiche(request):
-	from reportlab.pdfgen import canvas
-	from reportlab.platypus import Table, TableStyle, Paragraph
-	from reportlab.lib.styles import getSampleStyleSheet
-	from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER
-	from reportlab.lib import colors, pagesizes
-	from reportlab.lib.units import cm
-	
-	idfiche = request.POST.get('print_fiche', None)
-	if idfiche is None:
-		return errorPage(request, "Impression impossible. La fiche n'est pas reconnue.")
-	
-	#On recupere le cours correspondant à la fiche
-	cours = Cours.objects.filter(enseigne__idfiche = idfiche)
-	
-	#On recupere le professeur correspondant à la fiche
-	prof = Utilisateur.objects.filter(enseigne__idfiche = idfiche)
-	
-	#On recupere la fiche
-	fiche = Fiche.objects.get(idfiche=idfiche)
-	
-	listetud = Etudiant.objects.filter(appartient__idgroupe = cours[0].idgroupe)
+    from reportlab.pdfgen import canvas
+    from reportlab.platypus import Table, TableStyle, Paragraph
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER
+    from reportlab.lib import colors, pagesizes
+    from reportlab.lib.units import cm
+    
+    idfiche = request.POST.get('print_fiche', None)
+    if idfiche is None:
+        return errorPage(request, "Impression impossible. La fiche n'est pas reconnue.")
+    
+    #On recupere le cours correspondant à la fiche
+    cours = Cours.objects.filter(enseigne__idfiche = idfiche)
+    
+    #On recupere le professeur correspondant à la fiche
+    prof = Utilisateur.objects.filter(enseigne__idfiche = idfiche)
+    
+    agroupe = AGroupe.objects.filter(idcours=cours[0].idcours)
+    
+    #On recupere la fiche
+    fiche = Fiche.objects.get(idfiche=idfiche)
+    
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="FichePresomptive'+str(idfiche)+'.pdf"'
 
-	# Create the HttpResponse object with the appropriate PDF headers.
-	response = HttpResponse(content_type='application/pdf')
-	response['Content-Disposition'] = 'attachment; filename="FichePresomptive'+str(idfiche)+'.pdf"'
+    # Create the PDF object, using the response object as its "file."
+    p = canvas.Canvas(response)
+    
+    (width, height) = pagesizes.A4
+    
+    styles = getSampleStyleSheet()
+    styleN = styles["BodyText"]
+    styleN.alignment = TA_LEFT
+    styleBH = styles["Normal"]
+    styleBH.alignment = TA_CENTER
 
-	# Create the PDF object, using the response object as its "file."
-	p = canvas.Canvas(response)
-	
-	(width, height) = pagesizes.A4
-	
-	styles = getSampleStyleSheet()
-	styleN = styles["BodyText"]
-	styleN.alignment = TA_LEFT
-	styleBH = styles["Normal"]
-	styleBH.alignment = TA_CENTER
+    # Draw things on the PDF. Here's where the PDF generation happens.
+    # See the ReportLab documentation for the full list of functionality.
+    p.drawString(width/2 - 50, height - 30, "FICHE PRESOMPTIVE N°"+str(idfiche))
+    p.setLineWidth(.3)
+    p.line(10,height - 50,width - 10,height - 50)
+    
+    p.drawString(15, height - 100, "Professeur : "+str(prof[0].first_name)+" "+str(prof[0].last_name))
+    p.drawString(15, height - 150, "Cours : "+str(cours[0].intitulecours))
+    if fiche.valide == 1:
+        p.drawString(width - 120, height - 100, "Statut : Validé")
+    else:
+        p.drawString(width - 120, height - 100, "Statut : Non validé")
 
-	# Draw things on the PDF. Here's where the PDF generation happens.
-	# See the ReportLab documentation for the full list of functionality.
-	p.drawString(width/2 - 50, height - 30, "FICHE PRESOMPTIVE N°"+str(idfiche))
-	p.setLineWidth(.3)
-	p.line(10,height - 50,width - 10,height - 50)
-	
-	p.drawString(15, height - 100, "Professeur : "+str(prof[0].first_name)+" "+str(prof[0].last_name))
-	p.drawString(15, height - 150, "Cours : "+str(cours[0].intitulecours))
-	if fiche.valide == 1:
-		p.drawString(width - 120, height - 100, "Statut : Validé")
-	else:
-		p.drawString(width - 120, height - 100, "Statut : Non validé")
+    p.line(10,height - 175,width - 10,height - 175)
+    
+    hnom = Paragraph('''<b>Nom</b>''', styleBH)
+    hprenom = Paragraph('''<b>Prenom</b>''', styleBH)
+    hpresence = Paragraph('''<b>Présence</b>''', styleBH)
 
-	p.line(10,height - 175,width - 10,height - 175)
-	
-	hnom = Paragraph('''<b>Nom</b>''', styleBH)
-	hprenom = Paragraph('''<b>Prenom</b>''', styleBH)
-	hpresence = Paragraph('''<b>Présence</b>''', styleBH)
+    # Need a place to store our table rows
+    data = []
+    data.append([hnom, hprenom, hpresence])    
+    for i in range(agroupe.count()):
+        listetud = Etudiant.objects.filter(appartient__idgroupe = agroupe[i].idgroupe)
+        for user in listetud:
+            try:
+			    presence = ' '
+			    dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = user.idetud)
+            except Contient.DoesNotExist:
+			    presence = 'Absent'
+            # Add a row to the table
+            data.append([user.nometud, user.prenometud, presence])
+        
+    # Create the table
+    table = Table(data, colWidths=[width/3.0 - 10] )
 
-	# Need a place to store our table rows
-	data = []
-	data.append([hnom, hprenom, hpresence])
-	for user in listetud:
-		try:
-			presence = ' '
-			dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = user.idetud)
-		except Contient.DoesNotExist:
-			presence = 'Absent'
-		# Add a row to the table
-		data.append([user.nometud, user.prenometud, presence])
-		
-	# Create the table
-	table = Table(data, colWidths=[width/3.0 - 10] )
+    table.setStyle(TableStyle([
+                           ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
+                           ('BOX', (0,0), (-1,-1), 1, colors.black),
+                           ]))
 
-	table.setStyle(TableStyle([
-						   ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
-						   ('BOX', (0,0), (-1,-1), 1, colors.black),
-						   ]))
-
-	tableW, tableH = table.wrapOn(p, 0, 0)
-	table.drawOn(p, 15, height - 200 - tableH)
-	# Close the PDF object cleanly, and we're done.
-	p.showPage()
-	p.save()
-	return response
+    tableW, tableH = table.wrapOn(p, 0, 0)
+    table.drawOn(p, 15, height - 200 - tableH)
+    # Close the PDF object cleanly, and we're done.
+    p.showPage()
+    p.save()
+    return response
     
 
 def validateAccount(request):
@@ -542,7 +544,7 @@ def validateAccount(request):
         user = Utilisateur.objects.get(validationkey=key)
     
         if user.validated != 1:
-	    user.validated=1
+            user.validated=1
         else:
             return HttpResponse("Votre compte est déjà activé!")
     
@@ -553,31 +555,31 @@ def validateAccount(request):
 
 
 def validated(request): #Cette vue permet d'effectuer les traitements suite à la validation de la fiche
-	try:	
-		user = request.session['userid']
-	except KeyError:
-		user = None
-		
-	if user is None:
-		return errorPage(request, 'Opération non autorisée.')
-	
-	idfiche = request.POST.get('fiche','')
-	fiche = Fiche.objects.get(idfiche = idfiche)
+    try:    
+        user = request.session['userid']
+    except KeyError:
+        user = None
+        
+    if user is None:
+        return errorPage(request, 'Opération non autorisée.')
+    
+    idfiche = request.POST.get('fiche','')
+    fiche = Fiche.objects.get(idfiche = idfiche)
 
-	list_etu = request.POST.getlist('list_etu')
-	for idetudiant in list_etu:
-		print idetudiant
-		etudiant = Etudiant.objects.get(idetud=idetudiant)
-		try:
-			dejaPresent = Contient.objects.get(idfiche=fiche, idetud = etudiant)
-		except Contient.DoesNotExist:
-			addtoFiche = Contient(idfiche=fiche, idetud = etudiant)
-			addtoFiche.save()
-	#On valide la fiche présomptive dans la BDD
-	if fiche.valide == 0:
-		fiche.valide = 1
-		fiche.save()
-	return render(request, 'validated.html')
+    list_etu = request.POST.getlist('list_etu')
+    for idetudiant in list_etu:
+        print idetudiant
+        etudiant = Etudiant.objects.get(idetud=idetudiant)
+        try:
+            dejaPresent = Contient.objects.get(idfiche=fiche, idetud = etudiant)
+        except Contient.DoesNotExist:
+            addtoFiche = Contient(idfiche=fiche, idetud = etudiant)
+            addtoFiche.save()
+    #On valide la fiche présomptive dans la BDD
+    if fiche.valide == 0:
+        fiche.valide = 1
+        fiche.save()
+    return render(request, 'validated.html')
 
 def test(request):
     return render(request, 'test.html')

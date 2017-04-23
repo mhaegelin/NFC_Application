@@ -25,7 +25,6 @@ CREATE TABLE Cours(
         IntituleCours Varchar (25) ,
         DebutCours    Datetime ,
         FinCours      Datetime ,
-        IDGroupe      Int ,
         PRIMARY KEY (IDCours )
 )ENGINE=InnoDB;
 
@@ -58,6 +57,7 @@ CREATE TABLE Utilisateur(
 CREATE TABLE Groupe(
         IDGroupe       int (11) Auto_increment  NOT NULL ,
         IntituleGroupe Varchar (25) ,
+	IDPromo int(11),
         PRIMARY KEY (IDGroupe )
 )ENGINE=InnoDB;
 
@@ -134,7 +134,26 @@ CREATE TABLE appartient(
         PRIMARY KEY (IDGroupe ,IDEtud )
 )ENGINE=InnoDB;
 
-ALTER TABLE Cours ADD CONSTRAINT FK_Cours_IDGroupe FOREIGN KEY (IDGroupe) REFERENCES Groupe(IDGroupe);
+
+#------------------------------------------------------------
+# Table: a_groupe
+#------------------------------------------------------------
+
+CREATE TABLE a_groupe(
+        IDGroupe Int NOT NULL ,
+        IDCours  Int NOT NULL ,
+        PRIMARY KEY (IDGroupe ,IDCours )
+)ENGINE=InnoDB;
+
+ALTER TABLE Groupe
+ADD CONSTRAINT fk_promo_id FOREIGN KEY (IDPromo) REFERENCES Promotion(IDPromo);
+
+ALTER TABLE a_groupe
+ADD CONSTRAINT fk_group_id FOREIGN KEY (IDGroupe) REFERENCES Groupe(IDGroupe);
+
+ALTER TABLE a_groupe
+ADD CONSTRAINT fk_cours_id FOREIGN KEY (IDCours) REFERENCES Cours(IDCours);
+
 ALTER TABLE Etudiant ADD CONSTRAINT FK_Etudiant_IDPromo FOREIGN KEY (IDPromo) REFERENCES Promotion(IDPromo);
 ALTER TABLE enseigne ADD CONSTRAINT FK_enseigne_IDCours FOREIGN KEY (IDCours) REFERENCES Cours(IDCours);
 ALTER TABLE enseigne ADD CONSTRAINT FK_enseigne_id FOREIGN KEY (idUtil) REFERENCES Utilisateur(idUtil);
@@ -187,12 +206,12 @@ INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadge
 
 
 
-INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`, `IDGroupe`) VALUES
-(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00', 3),
-(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00', 1),
-(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00', 2),
-(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00', 1),
-(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00', 4);
+INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`) VALUES
+(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00'),
+(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00'),
+(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00'),
+(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00'),
+(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00');
 
 
 INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `TraceNFC`) VALUES
