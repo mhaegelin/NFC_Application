@@ -28,8 +28,9 @@
 							<li><a href="#intro">Bonjour</a></li>
 							<li><a href="#one">Gestion Utilisateurs</a></li>
 							<li><a href="#two">Gestion Etudiants</a></li>
-							<li><a href="#three">Gestion Groupe</a></li>
-							<li><a href="#four">Gestion Fiche</a></li>
+							<li><a href="#three">Gestion Promotions</a></li>
+							<li><a href="#four">Gestion Groupe</a></li>
+							<li><a href="#five">Gestion Fiche</a></li>
 							<li><a href="{% url 'login' %}">Déconnexion</a></li>
 						</ul>
 					</nav>
@@ -331,8 +332,8 @@
 				<!-- Two -->
 					<section id="two" class="wrapper style1 fullscreen fade-up">
 						<div class="inner">
-							<h2>Selectionner la promotion à gérer</h2>
-							<p>Le formulaire mettra ses champs à jour automatiquement : </p>
+							<h2>Gestion des etudiants</h2>
+							<p>Selectionnez la promotion dont les étudiants sont à gérer : </p>
 							<div class="split style1">
 								<section>
 									<select id="listpromo">
@@ -656,34 +657,280 @@
 				<!-- Three -->
 					<section id="three" class="wrapper style3 fullscreen fade-up">
 						<div class="inner">
-							<h2>Ajouter Cours</h2>
-							<p>Veuillez remplir le formulaire suivant pour ajouter un cours :</p>
-							<div class="split style1">
-								<section>
-									<form method="post" action="#">
-										<div class="field half first">
-											<label for="name">Name</label>
-											<input type="text" name="name" id="name" />
-										</div>
-										<div class="field half">
-											<label for="email">Email</label>
-											<input type="text" name="email" id="email" />
-										</div>
-										<div class="field">
-											<label for="message">Message</label>
-											<textarea name="message" id="message" rows="5"></textarea>
-										</div>
-										<ul class="actions" align="right">
-											<li><a href="" class="button submit">Ajouter</a></li>
-										</ul>
-									</form>
-								</section>
+							<h2>Gestion des Promotions</h2>
+							<p>Selectionnez la promotion à gérer :</p>
+							<span id="listegp"><select id="listpromo2" style="width: 30em;">
+									<option value='default'>#Selectionner une promotion#</option>
+									{% for promo in liste_promo %}
+									<option value="{{ promo.idpromo }}"> {{promo.idpromo}} {{promo.intitulepromo}}</option>
+									{% endfor %}
+							</select>
+							</span>
+							<br>
+							<ul class="actions">
+							<li><a class="button" onClick="display_promo_form();action_add_promo();" name="add_promo" id="add_promo">Ajouter</a></li>
+							<li><a class="button special disabled" onClick="display_promo_form();action_change_promo();" name="change_promo" id="change_promo">Modifier</a></li>
+							<li><a class="button special disabled" onClick="action_del_promo();" name="drop_promo" id="drop_promo">Supprimer</a></li>
+							</ul>
+							<br>
+							<div id="promo_form" hidden="true">
+							<div class="field" style="width: 30em">
+								<label for="intitule">Intitule promotion</label>
+								<input type="text" name="intitulepromo" id="intitulepromo" />
+							</div>
+							<label for="listegroupespromo">Liste des groupes associés</label><br>
+							<select id="listegroupespromo" name="listegroupespromo" multiple="multiple" style="border-radius:3px;height:2.75em;background-color:rgb(183,78,145);width:30em;">
+							{% for groupe in liste_groupe %}
+											<option value="{{ groupe.idgroupe }}"> {{ groupe.idgroupe }} {{ groupe.intitulegroupe }}</option>
+							{% endfor %}
+							</select>
+							<br><br>
+							<div id="promo_button">
+							<ul class="actions">
+								<li><a class="button" id="validationpromo">Valider</a></li>
+								<li><a onclick="hide_promo_form();" class="button">Annuler</a></li>
+							</ul>
+							</div>
 							</div>
 						</div>
 					</section>
+					<script>
+					function hide_promo_form() { // Masquage du formulaire
+					$("#promo_form").hide();
+					$("#add_promo").removeClass('button special disabled').addClass('button');
+					$("#change_promo").removeClass('button').addClass('button special disabled');
+					$("#drop_promo").removeClass('button').addClass('button special disabled');
+					$("#listpromo2").prop('disabled', false);
+					$("#listpromo2").val('default').change();
+					};
 					
+					function display_promo_form() { // Affiche formulaire promo
+						$("#promo_form").show();
+						$("#add_promo").removeClass('button').addClass('button special disabled');
+						$("#change_promo").removeClass('button').addClass('button special disabled');
+						$("#drop_promo").removeClass('button').addClass('button special disabled');
+						$("#listpromo2").prop('disabled', true);
+					};
+					
+					function empty_promo_form() {
+						$("#intitulepromo").val('');
+						for(var i=0; i<$("#listegroupespromo option").length ; i++){
+												$('#listegroupespromo')[0].sumo.unSelectItem(i);
+												}
+					}
+					
+					
+					function action_del_promo() {
+								var promo = $("#listpromo2").val().split(' ');
+								var idpromo = promo[0];
+								$.ajax({
+									url: '/Appli/accueil/ajaxdelpromo',
+									data: {
+									'idpromo': idpromo
+									},
+									dataType: 'json',
+									success: function (data) {
+                                    $("#listpromo2 option[value='"+data.idpromo+"']").remove();
+                                    $("#listpromo3 option[value='"+data.idpromo+"']").remove();
+									$("#change_promo").removeClass('button').addClass('button special disabled');
+									$("#drop_promo").removeClass('button').addClass('button special disabled');
+									empty_promo_form();
+									}
+								});
+					}
+					
+					function action_change_promo() {
+								$("#add_promo").removeClass('button').addClass('button special disabled');
+								$("#validationpromo").unbind('click');
+								$("#validationpromo").bind('click', function(){
+								var promo = $("#listpromo2").val().split(' ');
+								var idpromo = promo[0];
+								var intitule = $("#intitulepromo").val();
+								var groupes = $("#listegroupespromo").val();
+								groupes = JSON.stringify(groupes);
+								$.ajax({
+									url: '/Appli/accueil/ajaxchangepromo',
+									data: {
+									'idpromo': idpromo,
+									'intitule':intitule,
+									'groupes':groupes
+									},
+									dataType: 'json',
+									success: function (data) {
+								   $("#listpromo2 option:selected").text(data.idpromo+' '+data.intitule);
+									hide_promo_form();
+									empty_promo_form();
+									}
+								});
+								});
+					}
+					
+					function action_add_promo() {
+								empty_promo_form();
+								$("#listpromo2").val('default');
+								$("#add_promo").removeClass('button').addClass('button special disabled');
+								$("#validationpromo").unbind('click');
+								$("#validationpromo").bind('click', function(){
+								var intitule = $("#intitulepromo").val();
+								var promogroupes = $("#listegroupespromo").val();
+								var groupes = JSON.stringify(promogroupes);
+								$.ajax({
+									url: '/Appli/accueil/ajaxaddpromo',
+									data: {
+									'intitule': intitule,
+									'groupes': groupes
+									},
+									dataType: 'json',
+									success: function (data) {
+                                   $("#listpromo2").append('<option value='+data.idpromo+'>'+data.idpromo+' '+data.intitule+'</option>');
+                                   $("#listpromo3").append('<option value='+data.idpromo+'>'+data.idpromo+' '+data.intitule+'</option>');
+									hide_promo_form();
+									empty_promo_form();                                  
+									}
+								});
+							});
+							}		
+					
+					
+					$("#listpromo2").change(function() {
+						if ($("#listpromo2").val() == "default"){
+						$("#add_promo").removeClass('button special disabled').addClass('button');
+						$("#change_promo").removeClass('button').addClass('button special disabled');
+						$("#drop_promo").removeClass('button').addClass('button special disabled');
+						}
+						else{
+						load_listpromo_accueil();
+						$("#add_promo").removeClass('button special disabled').addClass('button');
+						$("#change_promo").removeClass('button special disabled').addClass('button');
+						$("#drop_promo").removeClass('button special disabled').addClass('button');
+					}
+					});
+					
+					function load_listpromo_accueil() { 
+						
+						var promo = $("#listpromo2").val();
+						var id = promo.split(' ');
+						
+						$.ajax({
+							url: '/Appli/accueil/ajaxlistpromo',
+							data: {
+								'id': id[0]
+							},
+							dataType: 'json',
+							success: function (data) {
+								// MAJ des champs du formulaire promo
+								$("#intitulepromo").val(data.intitule)
+								//Deselectionner tous les groupes
+								for(var i=0; i<$("#listegroupespromo option").length ; i++){
+								$('#listegroupespromo')[0].sumo.unSelectItem(i);
+								}
+								
+							    listgroupes=eval(data.listgroupes);
+								for (var key in listgroupes){
+								    $('#listegroupespromo')[0].sumo.selectItem(listgroupes[key].input_idgroupe-1);
+								}
+							}
+						});
+					}
+					</script>
 				<!-- Four -->
-					<section id="four" class="wrapper style1 fullscreen fade-up">
+				
+	<section id="four" class="wrapper style1 fullscreen fade-up">
+			<div class="inner">
+				<h2>Selectionner le groupe à gérer</h2>
+				<p>Le formulaire mettra ses champs à jour automatiquement : </p>
+				<span id="listegp"><select id="listgpe2" style="width: 30em;">
+									<option value='default'>#Selectionner un groupe#</option>
+									{% for gpe in liste_groupe %}
+									<option> {{gpe.idgroupe}} {{gpe.intitulegroupe}}</option>
+									{% endfor %}
+							</select>
+							</span>
+							<br>
+							<ul class="actions">
+							<li><a class="button" onClick="display_groupe_form();" name="add_groupe" id="add_groupe">Ajouter</a></li>
+							<li><a class="button special disabled" onClick="display_groupe_form();" name="change_groupe" id="change_groupe">Modifier</a></li>
+							<li><a class="button special disabled" onClick="drop_group_action();" name="drop_groupe" id="drop_groupe">Supprimer</a></li>
+							</ul>
+							<br>
+							<div id="groupe_form" hidden="true">
+							<div class="field" style="width: 16em">
+								<label for="intitule">Intitule groupe</label>
+								<input type="text" name="intitule" id="intitule" />
+							</div>
+							<label for="listegroupespromo">Promotion associée</label><br>
+							<select id="listpromo3" style="width: 16em;">
+							<option value='default'>#Selectionner une promotion#</option>
+							{% for promo in liste_promo %}
+							<option> {{promo.idpromo}} {{promo.intitulepromo}}</option>
+							{% endfor %}
+							</select>
+							<div id="groupe_button">
+							<ul class="actions">
+								<li><a class="button" id="validationgroupe">Valider</a></li>
+								<li><a onclick="hide_groupe_form();" class="button">Annuler</a></li>
+							</ul>
+							</div>
+							</div>
+					</div>
+		</section>
+		<script>		
+					function hide_groupe_form() { // Masquage du formulaire
+					$("#groupe_form").hide()
+					$("#add_groupe").removeClass('button special disabled').addClass('button');
+					$("#change_groupe").removeClass('button').addClass('button special disabled');
+					$("#drop_groupe").removeClass('button').addClass('button special disabled');
+					$("#listgpe2").prop('disabled', false);
+					$("#listgpe2").val('default').change();
+					};
+					
+					function display_groupe_form() { // Affiche formulaire groupe
+						$("#groupe_form").show();
+						$("#add_groupe").removeClass('button').addClass('button special disabled');
+						$("#change_groupe").removeClass('button').addClass('button special disabled');
+						$("#drop_groupe").removeClass('button').addClass('button special disabled');
+						$("#listgpe2").prop('disabled', true);
+					};
+					
+					$("#listgpe2").change(function() {
+						if ($("#listgpe2").val() == "default"){
+						$("#add_groupe").removeClass('button special disabled').addClass('button');
+						$("#change_groupe").removeClass('button').addClass('button special disabled');
+						$("#drop_groupe").removeClass('button').addClass('button special disabled');
+						}
+						else{
+						//load_groupe();
+						$("#add_groupe").removeClass('button special disabled').addClass('button');
+						$("#change_groupe").removeClass('button special disabled').addClass('button');
+						$("#drop_groupe").removeClass('button special disabled').addClass('button');
+					}
+					});
+					
+					function empty_group_form() {
+							$("#intitule").val('');
+							$("#listepromo3").val('default').change();							
+					}
+					
+					function drop_group_action() {
+						alert('DROP');
+						var groupe = $("#listgpe2").val().split(' ');
+						var idgroupe = groupe[0];
+						$.ajax({
+									url: '/Appli/accueil/ajaxdelgroupe',
+									data: {
+									'idgroupe': idgroupe
+									},
+									dataType: 'json',
+									success: function (data) {
+                                    $("#listegpe2").val('default').change();
+                                    $("#listegpe2").remove();
+									empty_group_form();
+									}
+								});
+					};
+					
+		</script>
+					<section id="five" class="wrapper style1 fullscreen fade-up">
 						<div class="inner">
 							<h2>Sélectionner une fiche</h2>
 							<p>Veuillez choisir la fiche que vous souhaitez gérer :</p>
@@ -833,8 +1080,13 @@
 			<script>
 				$(document).ready(function () {
 						  $('#listegroupes').SumoSelect();
+						  $('#listegroupespromo').SumoSelect();
 					  });
 			</script>
+			
+		<!-- Scripts -->
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="{% static "assets/js/main.js" %}"></script>
 			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
 	</body>
 </html>

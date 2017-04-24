@@ -1935,6 +1935,10 @@
 			top: 0;
 			width: 100%;
 		}
+		
+		.small button{
+		    width: 16em;
+		}
 
 		input[type="submit"].icon:before,
 		input[type="reset"].icon:before,

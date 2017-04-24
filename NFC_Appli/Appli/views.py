@@ -88,12 +88,106 @@ def accueil(request):
         else: #Professeur (Non-administrateur)
             request.session['userid'] = user.idutil
             request.session.set_expiry(0)
+            print "OK"
             if user.validated == 1:
                 return redirect('fiche')
             else:
                 return errorPage(request, 'Compte non activé.')
     else:
         return errorPage(request, 'Utilisateur inconnu.')
+
+
+def ajaxdelpromo(request):
+    import json
+    idpromo = request.GET.get('idpromo', None)
+    promo = Promotion.objects.get(idpromo=idpromo)
+    promo.delete()
+    data = {
+    'idpromo':idpromo
+    }
+    return JsonResponse(data)
+    
+    
+    
+def is_number(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+def ajaxaddpromo(request):
+    import json
+    intitule = request.GET.get('intitule', None)
+    groupes = request.GET.get('groupes', None)
+    print groupes
+    promo = Promotion(intitulepromo=intitule)
+    promo.save()
+    latest = Promotion.objects.latest('idpromo')
+    cpt=0
+    for i in range(len(groupes)):
+        if is_number(groupes[i]):
+            cpt=10*cpt+int(groupes[i])
+        else:
+            if cpt!=0:
+                groupe = Groupe.objects.get(idgroupe=cpt)
+                groupe.idpromo = latest
+                groupe.save()
+                cpt=0
+    data = {
+    'idpromo':latest.idpromo,
+    'intitule':intitule
+    }
+    return JsonResponse(data)
+
+def ajaxdelgroupe(request):
+	import json
+	idgroupe = request.GET.get('idgroupe', None)
+	
+	data = {}
+	
+	return JsonResponse(data)
+	
+
+def ajaxchangepromo(request):
+    import json
+    idpromo = request.GET.get('idpromo', None)
+    intitule = request.GET.get('intitule', None)
+    groupes = request.GET.get('groupes', None)
+    promo = Promotion.objects.get(idpromo=idpromo)
+    promo.intitulepromo = intitule
+    promo.save()
+    cpt=0
+    #Passer à null l'idpromo des groupes supprimés de la promotion!
+    groups = Groupe.objects.filter(idpromo=idpromo)
+    listeid = []
+    listenew = []
+    for i in range(groups.count()):
+        listeid.append(groups[i].idgroupe)
+
+    for i in range(len(groupes)):
+        if is_number(groupes[i]):
+            cpt=10*cpt+int(groupes[i])
+        else:
+            if cpt!=0:
+                listenew.append(cpt)
+                cpt=0
+
+    for i in range(len(listeid)): # On passe tous les idpromo à NULL dans la liste d'origine
+		groupe = Groupe.objects.get(idgroupe=listeid[i])
+		groupe.idpromo = None
+		groupe.save()    
+    
+    for i in range(len(listenew)): #On ajoute les bonnes valeurs pour les groupes concernés
+        groupe = Groupe.objects.get(idgroupe=listenew[i])
+        groupe.idpromo = promo
+        groupe.save()
+
+    data = {
+    'idpromo':idpromo,
+    'intitule':intitule
+    }
+    return JsonResponse(data)
 
 def ajaxlistetud(request):
     import json
@@ -105,6 +199,18 @@ def ajaxlistetud(request):
     }    
     return JsonResponse(data)
 
+def ajaxlistpromo(request): #MAJ des champs du formulaire promo
+    import json
+    idpromo = request.GET.get('id', None)
+    promo = Promotion.objects.get(idpromo=idpromo)
+    intitule = promo.intitulepromo
+    listgroupes = Groupe.objects.filter(idpromo=idpromo)
+    liste = [e.as_json() for e in listgroupes]
+    data = {
+        'intitule':intitule,
+        'listgroupes': json.dumps(liste)
+    }    
+    return JsonResponse(data)
 
 def ajaxetud(request):
     import json
@@ -123,13 +229,6 @@ def ajaxetud(request):
     'groupes': list(listegroupes)
     }
     return JsonResponse(data)
-
-def is_number(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
 
 
 def ajaxaddetud(request):
@@ -251,7 +350,7 @@ def ajaxfiche(request):
                 presence = ' '
                 dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = etud.idetud)
             except Contient.DoesNotExist:
-			    presence = 'Absent' 
+                presence = 'Absent' 
             dict = etud.as_json()
             dict['presence'] = presence    
             liste = liste + [dict]
@@ -340,7 +439,6 @@ def fiche(request):
     ###
     #On récupère l'ensemble des groupes correspondant au cours actuellement donné par le professeur concerné
     groupe = Groupe.objects.filter(agroupe__idcours = cours[0].idcours)
-    print "groupe count=", groupe.count()
     #On récupère la liste des étudiants correspondants au groupe, on retire ceux n'ayant pas badgé
     liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe).exclude(hasbadged = 0)
     nbEtudiant = liste_etu.count()
@@ -514,10 +612,10 @@ def printfiche(request):
         listetud = Etudiant.objects.filter(appartient__idgroupe = agroupe[i].idgroupe)
         for user in listetud:
             try:
-			    presence = ' '
-			    dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = user.idetud)
+                presence = ' '
+                dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = user.idetud)
             except Contient.DoesNotExist:
-			    presence = 'Absent'
+                presence = 'Absent'
             # Add a row to the table
             data.append([user.nometud, user.prenometud, presence])
         

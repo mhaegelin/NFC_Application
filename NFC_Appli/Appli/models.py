@@ -54,8 +54,12 @@ class Fiche(models.Model):
 class Groupe(models.Model):
     idgroupe = models.AutoField(db_column='IDGroupe', primary_key=True)  # Field name made lowercase.
     intitulegroupe = models.CharField(db_column='IntituleGroupe', max_length=25, blank=True, null=True)  # Field name made lowercase.
-    idpromo = models.ForeignKey('Promotion', models.DO_NOTHING, db_column='IDPromo', blank=True, null=True)  # Field name made lowercase.
-
+    idpromo = models.ForeignKey('Promotion', on_delete=models.SET_NULL, db_column='IDPromo', blank=True, null=True)  # Field name made lowercase.
+    def as_json(self):
+        return dict(
+            input_idgroupe=self.idgroupe,
+            input_intitule=self.intitulegroupe
+            )
     class Meta:
         
         db_table = 'Groupe'
@@ -64,7 +68,6 @@ class Groupe(models.Model):
 class Promotion(models.Model):
     idpromo = models.AutoField(db_column='IDPromo', primary_key=True)  # Field name made lowercase.
     intitulepromo = models.CharField(db_column='IntitulePromo', max_length=25, blank=True, null=True)  # Field name made lowercase.
-
     class Meta:
         
         db_table = 'Promotion'
@@ -91,7 +94,7 @@ class Utilisateur(models.Model):
 
 class AGroupe(models.Model):
     idgroupe = models.ForeignKey(Groupe, models.DO_NOTHING, db_column='IDGroupe')  # Field name made lowercase.
-    idcours = models.ForeignKey(Cours, models.DO_NOTHING, db_column='IDCours')  # Field name made lowercase.
+    idcours = models.ForeignKey(Cours, on_delete=models.CASCADE, db_column='IDCours')  # Field name made lowercase.
 
     class Meta:
         
@@ -122,7 +125,7 @@ class Contient(models.Model):
 class Enseigne(models.Model):
     nomsalle = models.CharField(db_column='NomSalle', max_length=25, blank=True, null=True)  # Field name made lowercase.
     idcours = models.ForeignKey(Cours, models.DO_NOTHING, db_column='IDCours')  # Field name made lowercase.
-    idutil = models.ForeignKey(Utilisateur, models.DO_NOTHING, db_column='idUtil')  # Field name made lowercase.
+    idutil = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, db_column='idUtil')  # Field name made lowercase.
     idfiche = models.ForeignKey(Fiche, models.DO_NOTHING, db_column='IDFiche')  # Field name made lowercase.
 
     class Meta:
