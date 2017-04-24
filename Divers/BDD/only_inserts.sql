@@ -87,7 +87,7 @@ INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `ema
 (3, 'Frank', 'McKenna', 'toto', `email`, `username`, false, false, 'EFZTREF', 'randomValidationKey', false),
 (4, 'Stella', 'Marc', 'toto', `email`, `username`, false, false, 'EFZTREF', 'randomValidationKey', false),
 (5, 'Christian', 'Ronce', 'toto', `email`, `username`, false, false, 'EFZTREF', 'randomValidationKey', false),
-(6, 'Admin', 'Admin', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'admin', true, false, 'EFZTREF', 'randomValidationKey', false);
+(6, 'Admin', 'Admin', '0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c', 'email', 'Admin', true, false, 'EFZTREF', 'randomValidationKey', false);
 
 
 INSERT INTO `contient` (`IDFiche`, `IDEtud`) VALUES
