@@ -13,8 +13,8 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-		<link rel="stylesheet" href="{% static 'assets/css/main.css' %}"/>
-		<link rel="stylesheet" href="{% static 'assets/css/sumoselect.css' %}"/>
+		<link rel="stylesheet" href="{% static "assets/css/main.css" %}"/>
+		<link rel="stylesheet" href="{% static "assets/css/sumoselect.css" %}"/>
 		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
 		<script src=" {% static 'assets/js/jquery.sumoselect.js' %}"></script>
@@ -29,8 +29,8 @@
 							<li><a href="#one">Gestion Utilisateurs</a></li>
 							<li><a href="#two">Gestion Etudiants</a></li>
 							<li><a href="#three">Gestion Promotions</a></li>
-							<li><a href="#four">Gestion Groupe</a></li>
-							<li><a href="#five">Gestion Fiche</a></li>
+							<li><a href="#four">Gestion Groupes</a></li>
+							<li><a href="#five">Gestion Fiches</a></li>
 							<li><a href="{% url 'login' %}">Déconnexion</a></li>
 						</ul>
 					</nav>
@@ -52,8 +52,8 @@
 				<!-- One -->
 					<section id="one" class="wrapper style3 fullscreen fade-up">
 						<div class="inner">
-							<h2>Sélectionner un utilisateur</h2>
-							<p>Le formulaire mettra ses champs à jour automatiquement :</p>
+							<h2>Gestion des utilisateurs</h2>
+							<p>Selectionnez un utilisateur à gérer :</p>
 							<div class="split style1">
 								<section>
 									<select id="listutil">
@@ -342,6 +342,7 @@
 									<option> {{promo.idpromo}} {{promo.intitulepromo}}</option>
 									{% endfor %}
 									</select>
+									<br>
 									<ul class="actions" align="right">
 											<li><a class="button special disabled" onClick="display_add_form();action_ajouter_etud();" name="add_etud" id="add_etud">Ajouter</a></li>
 											<li><a class="button special disabled" onClick="display_change_form();action_change_etud();" name="change_etud" id="change_etud">Modifier</a></li>
@@ -504,6 +505,7 @@
 					$("#add_etud").removeClass('button').addClass('button special disabled');
 					$("#change_etud").removeClass('button').addClass('button special disabled');
 					$("#drop_etud").removeClass('button').addClass('button special disabled');
+					$("#validationetud").removeClass('button special disabled').addClass('button');
 					$("#listpromo").prop('disabled', true);
 					};
 					
@@ -534,6 +536,7 @@
 						$("#add_etud").removeClass('button').addClass('button special disabled');
 						$("#change_etud").removeClass('button').addClass('button special disabled');
 						$("#drop_etud").removeClass('button').addClass('button special disabled');
+						$("#validationetud").removeClass('button').addClass('button special disabled');						
 						$("#listpromo").prop('disabled', true);
 					};
 					
@@ -837,8 +840,8 @@
 				
 	<section id="four" class="wrapper style1 fullscreen fade-up">
 			<div class="inner">
-				<h2>Selectionner le groupe à gérer</h2>
-				<p>Le formulaire mettra ses champs à jour automatiquement : </p>
+				<h2>Gestion des groupes</h2>
+				<p>Selectionnez le groupe à gérer :</p>
 				<span id="listegp"><select id="listgpe2" style="width: 30em;">
 									<option value='default'>#Selectionner un groupe#</option>
 									{% for gpe in liste_groupe %}
@@ -972,7 +975,7 @@
 										</div>
 										<ul class="actions" align="right">
 											<input type="hidden" id="print_fiche" name="print_fiche">
-											<li><a class="button" onClick="action_modify();" name="change_fiche" id="change_fiche">Modifier</a></li>
+											<li><a class="button" onClick="action_modify_fiche();" name="change_fiche" id="change_fiche">Modifier</a></li>
 											<li><input class="button" type="submit" value="Imprimer"></li>
 											<li><a class="button" onClick="hide_fiche_form();" id="annulation">Retour</a></li>
 										</ul>
@@ -1038,7 +1041,7 @@
 						}
 						
 						
-						function action_modify() {
+						function action_modify_fiche() {
 							var id = $("#listfiche").val();
 							if ($("#validefiche").is(":checked")) {
 								var valide = 1;

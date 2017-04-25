@@ -78,7 +78,7 @@ class Utilisateur(models.Model):
     first_name = models.CharField(max_length=25, blank=True, null=True)
     last_name = models.CharField(max_length=25, blank=True, null=True)
     password = models.CharField(max_length=50, blank=True, null=True)
-    email = models.CharField(max_length=25, blank=True, null=True)
+    email = models.CharField(max_length=100, blank=True, null=True)
     username = models.CharField(max_length=25, blank=True, null=True)
     issuperuser = models.IntegerField(db_column='isSuperuser', blank=True, null=True)  # Field name made lowercase.
     tracenfc = models.CharField(db_column='TraceNFC', max_length=25, blank=True, null=True)  # Field name made lowercase.
@@ -104,7 +104,7 @@ class AGroupe(models.Model):
 
 class Appartient(models.Model):
     idgroupe = models.ForeignKey(Groupe, models.DO_NOTHING, db_column='IDGroupe')  # Field name made lowercase.
-    idetud = models.ForeignKey(Etudiant, models.DO_NOTHING, db_column='IDEtud')  # Field name made lowercase.
+    idetud = models.ForeignKey(Etudiant, on_delete=models.CASCADE, db_column='IDEtud')  # Field name made lowercase.
 
     class Meta:
         

@@ -381,7 +381,7 @@ def adduser(request):
         #Generation de la validationkey
         t = time.time()
         key = md5.new(str(t))
-        user = Utilisateur(username=username, email=mailutil, first_name=prenomutil, last_name=nomutil, password=hex_dig, validationkey=key.hexdigest(), validated=0, hasbadged=0, tracenfc=tracenfc)
+        user = Utilisateur(username=username, email=mailutil, issuperuser=0, first_name=prenomutil, last_name=nomutil, password=hex_dig, validationkey=key.hexdigest(), validated=0, hasbadged=0, tracenfc=tracenfc)
         user.save()
         lastuser = Utilisateur.objects.latest('idutil')
         iduser = lastuser.idutil
@@ -516,11 +516,13 @@ def changeuser(request):
         if util.email != mailutil and mailutil != '':
             from django.core.mail import send_mail
             key = util.validationkey
-        send_mail('eLOG Mailing Confirmation',
-        'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+key,
-        'NoReply@elog.com',
-        [mailutil],
-        fail_silently=False)
+            send_mail(
+    'eLOG Mailing Confirmation',
+    'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+str(key),
+    'NoReply@elog.com',
+    [mailutil],
+    fail_silently=False,
+    )
         util.email = mailutil
         util.first_name = prenomutil
         util.last_name = nomutil
@@ -574,7 +576,7 @@ def printfiche(request):
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="FichePresomptive'+str(idfiche)+'.pdf"'
-
+	
     # Create the PDF object, using the response object as its "file."
     p = canvas.Canvas(response)
     
