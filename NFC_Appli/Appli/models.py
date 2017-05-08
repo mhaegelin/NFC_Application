@@ -28,7 +28,7 @@ class Etudiant(models.Model):
     mailetud = models.CharField(db_column='MailEtud', max_length=25, blank=True, null=True)  # Field name made lowercase.
     hasbadged = models.IntegerField(db_column='hasBadged', blank=True, null=True)  # Field name made lowercase.
     tracenfc = models.CharField(db_column='TraceNFC', max_length=25, blank=True, null=True)  # Field name made lowercase.
-    idpromo = models.ForeignKey('Promotion', models.DO_NOTHING, db_column='IDPromo', blank=True, null=True)  # Field name made lowercase.
+    idpromo = models.ForeignKey('Promotion', on_delete=models.CASCADE, db_column='IDPromo', blank=True, null=True)  # Field name made lowercase.
 
     def as_json(self):
         return dict(

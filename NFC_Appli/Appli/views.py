@@ -59,6 +59,7 @@ def update_scanning(request):
             empty_data = {}
             return JsonResponse(empty_data)
     else:
+        print "STOP_SCANNING = 1"
         admin.isscanning=0
         admin.save()
         empty_data = {}
@@ -193,9 +194,14 @@ def ajaxlistetud(request):
     import json
     promo = request.GET.get('id', None)
     listetud = Etudiant.objects.filter(idpromo=promo)
+    listegps = Groupe.objects.filter(idpromo=promo)
+    liste2 = [g.as_json() for g in listegps]
     liste = [e.as_json() for e in listetud]
+    print liste2
+    print liste
     data = {
-        'listetud': json.dumps(liste)
+        'listetud': json.dumps(liste),
+        'listegps': json.dumps(liste2)
     }    
     return JsonResponse(data)
 
@@ -215,12 +221,15 @@ def ajaxlistpromo(request): #MAJ des champs du formulaire promo
 def ajaxetud(request):
     import json
     idetud = request.GET.get('id', None)
+    idpromo = request.GET.get('idpromo', None)
+    print "idpromo=", idpromo
     etud = Etudiant.objects.get(idetud=idetud)
     name = etud.nometud
     surname = etud.prenometud
     mail = etud.mailetud
     tracenfc = etud.tracenfc
-    listegroupes = Appartient.objects.filter(idetud=idetud).values('idgroupe')
+    listegroupes = Appartient.objects.filter(idetud=idetud, ).values('idgroupe')
+    
     data = {
     'name': name,
     'surname': surname,
@@ -278,7 +287,9 @@ def ajaxchangeetud(request):
     etud.tracenfc = etudtracenfc
     etud.save()
     cpt=0
-    Appartient.objects.filter(idetud=idetud).delete()    
+    Appartient.objects.filter(idetud=idetud).delete()   
+    print etudgroupes
+
     for i in range(len(etudgroupes)):
         if is_number(etudgroupes[i]):
             cpt=10*cpt+int(etudgroupes[i])
@@ -433,6 +444,14 @@ def adduser(request):
     empty_data={}
     return JsonResponse(empty_data)
 
+def ajaxchangegroupe(request):
+	emptydata={}
+	return JsonResponse(emptydata)
+	
+def ajaxaddgroupe(request):
+	emptydata={}
+	return JsonResponse(emptydata)
+
 def EcranLogin(request):
     try:
         del request.session['userid']
@@ -483,14 +502,14 @@ def fiche(request):
 def trace(request):
     if request.method == 'POST':
         trace_NFC = request.POST.get('traceNFC')
-
+        print "trace_NFC", trace_NFC
         if trace_NFC is not None:
             import time
             from datetime import datetime
             #print time.strftime('%d/%m/%y %H:%M',time.localtime())
             hour = int(time.strftime('%H', time.localtime()))
             #verifier que nous ne sommes pas dans une periode creuse
-            addToTrace = Trace(tracenfc = trace_NFC)
+            #addToTrace = Trace(tracenfc = trace_NFC)
             if hour < 5 or hour > 18:
                 return errorPage(request, 'Unauthorized operation.')
             

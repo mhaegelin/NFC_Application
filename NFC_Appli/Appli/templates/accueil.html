@@ -192,6 +192,7 @@
 						$("#drop_user").removeClass('button').addClass('button special disabled');
 						$("#listutil").prop('disabled', false);
 						$("#listutil").val('default').change();
+						Annuler();
 						};
 						
 						
@@ -380,9 +381,9 @@
 										<section>
 											<label for="groupes">Liste des groupes</label>
 											<span id="listegp"><select id="listegroupes" name="listegroupes" multiple="multiple" style="border-radius:3px;height:2.75em;outline-color:orange;background-color:rgb(98,76,166);width:14.6em;">
-											{% for groupe in liste_groupe %}
+											<!--{% for groupe in liste_groupe %}
 											<option value="{{ groupe.idgroupe }}"> {{ groupe.idgroupe }} {{ groupe.intitulegroupe }}</option>
-											{% endfor %}
+											{% endfor %}-->
 											</select></span>
 										</section>
 										</div>
@@ -418,7 +419,7 @@
 						if ($("#scanningetud").val()=="1") {
 						$.ajax({
 						url: '/Appli/update_scanning/',
-						data: {},
+						data: {'stopscanning':0},
 						dataType: 'json',
 						success: function (data) {
 								if (jQuery.isEmptyObject(data)){
@@ -439,18 +440,30 @@
 						$("#scanningetud").val("1");
 						$("#abortbuttonetud").hide();
 						$("#scanbuttonetud").show();
+						$.ajax({
+								url: '/Appli/update_scanning/',
+								data: {'stopscanning':1},
+								dataType: 'json',
+								success: function (data) {
+								}
+								});
 					}
 					}
 						
 					$("#listetud").change(function () {
 									        var username = $("#listetud option:selected").text();
 											var id = username.split(' ');
+											var tidpromo = $("#listpromo").val().split(' ');
+											//alert(tidpromo);
+											idpromo = tidpromo[0];
+											//alert(idpromo);
 											if (id[0]!="#Selectionner"){
 											$("#validationetud").removeClass('button special disabled').addClass('button');
 											$.ajax({
 											url: '/Appli/accueil/ajaxetud',
 											data: {
-											  'id': id[0]
+											  'id': id[0],
+											  'idpromo': idpromo
 											},
 											dataType: 'json',
 											success: function (data) {
@@ -461,9 +474,39 @@
 											    for(var i=0; i<$("#listegroupes option").length ; i++){
 												$('#listegroupes')[0].sumo.unSelectItem(i);
 												}
-											    for (var i=0 ; i<data.groupes.length; i++){
-												$('#listegroupes')[0].sumo.selectItem(data.groupes[i].idgroupe-1);
+												
+												var obj = [];
+												var items = '';
+												$('#listegroupes option').each(function(i) {
+												  obj.push($(this).text());
+												  //$('#listegroupes')[0].sumo.unSelectItem(i);
+												});
+												for (var i = 0; i < obj.length; i++) {
+												  items += ' ' + obj[i];
+												  tab=obj[i].split(' ');
+												  obj[i]=tab[0];
+												};
+												
+												for (var i=0; i<$("#listegroupes option").length; i++){
+													for (var j=0; j<data.groupes.length; j++){
+															if (data.groupes[j].idgroupe==obj[i]){
+																$('#listegroupes')[0].sumo.selectItem(i);
+															}
+													}
 												}
+												
+												
+												//alert('Change listetud');
+												//var num = $("#listegroupes option").length;
+												//var ids = $("#listegroupes option").val();
+												//alert('num='+num);
+												//alert('ids='+ids);
+												//alert('data length='+data.groupes.length);
+											    /*for (var i=0 ; i<data.groupes.length; i++){
+												//alert(typeof data.groupes[i].idgroupe);
+												//alert(data.groupes[i].idgroupe);
+												$('#listegroupes')[0].sumo.selectItem(data.groupes[i].idgroupe-1);
+												}*/
 											}
 										      });
 										    }
@@ -528,6 +571,7 @@
 					$("#drop_etud").removeClass('button').addClass('button special disabled');
 					$("#listpromo").prop('disabled', false);
 					$("#listpromo").val('default').change();
+					AnnulerEtud();
 					};
 					
 					function display_drop_form() { // Affiche formulaire suppression etudiant
@@ -539,6 +583,7 @@
 						$("#validationetud").removeClass('button').addClass('button special disabled');						
 						$("#listpromo").prop('disabled', true);
 					};
+					
 					
 					function load_listetud_accueil() {
 						
@@ -552,14 +597,34 @@
 							},
 							dataType: 'json',
 							success: function (data) {
-								//Supprimer les elements préalablement dans le select option
+								//Supprimer les elements préalablement dans les select option
 								$('#listetud')
 								.find('option')
 								.remove()
 								.end();
+								
+								$("#listegroupespromo")[0].sumo.reload();
+								
+								
+								listegps = eval(data.listegps);
+								
+								var num = listegps.length;
+								
+								for (var key in listegps) {
+									$("#listegroupes")[0].sumo.add(listegps[key].input_idgroupe.toString()+' '+listegps[key].input_intitule.toString());
+								}
+								
+								var cpt = $("#listegroupes option").length-num;
+								
+								for (var i=0 ; i < cpt; i++){
+								$("#listegroupes")[0].sumo.remove(0);
+							    }
+							    								
+								
 								$("#listetud").append('<option value="default">#Selectionner un etudiant#</option>');
 								listetud = eval(data.listetud);
 								for (var key in listetud) {
+									//alert(listetud[key].input_idetud);
 									$("#listetud").append('<option value='+listetud[key].input_idetud+'>'+listetud[key].input_idetud + ' ' + listetud[key].input_prenometud
 									+' ' + listetud[key].input_nometud+'</option>');
 								}
@@ -580,7 +645,12 @@
 								var etudtracenfc = $("#tracenfcetud").val();
 								var etudgroupes = $("#listegroupes").val();
 								var idpromo = $("#listpromo").val().split(' ');
-								etudgroupes = JSON.stringify(etudgroupes);
+								tab = []
+								for(var i=0; i<etudgroupes.length; i++){
+									inter = etudgroupes[i].split(' ');
+									tab.push(inter[0]);
+								}
+								etudgroupes = JSON.stringify(tab);
 								$.ajax({
 									url: '/Appli/accueil/ajaxaddetud',
 									data: {
@@ -614,7 +684,13 @@
 								var etudtracenfc = $("#tracenfcetud").val();
 								var etudgroupes = $("#listegroupes").val();
 								var idetud = $("#listetud").val().split(' ');
-								etudgroupes = JSON.stringify(etudgroupes);
+								
+								tab = []
+								for(var i=0; i<etudgroupes.length; i++){
+									inter = etudgroupes[i].split(' ');
+									tab.push(inter[0]);
+								}
+								etudgroupes = JSON.stringify(tab);
 								$.ajax({
 									url: '/Appli/accueil/ajaxchangeetud',
 									data: {
@@ -735,7 +811,8 @@
 									success: function (data) {
                                     $("#listpromo2 option[value='"+data.idpromo+"']").remove();
                                     $("#listpromo3 option[value='"+data.idpromo+"']").remove();
-									$("#change_promo").removeClass('button').addClass('button special disabled');
+                                    $("#listpromo option[value='"+data.idpromo+"']").remove();
+                                    $("#change_promo").removeClass('button').addClass('button special disabled');
 									$("#drop_promo").removeClass('button').addClass('button special disabled');
 									empty_promo_form();
 									}
@@ -787,6 +864,8 @@
 									success: function (data) {
                                    $("#listpromo2").append('<option value='+data.idpromo+'>'+data.idpromo+' '+data.intitule+'</option>');
                                    $("#listpromo3").append('<option value='+data.idpromo+'>'+data.idpromo+' '+data.intitule+'</option>');
+								   $("#listpromo").append('<option value='+data.idpromo+'>'+data.idpromo+' '+data.intitule+'</option>');
+									
 									hide_promo_form();
 									empty_promo_form();                                  
 									}
@@ -837,7 +916,6 @@
 					}
 					</script>
 				<!-- Four -->
-				
 	<section id="four" class="wrapper style1 fullscreen fade-up">
 			<div class="inner">
 				<h2>Gestion des groupes</h2>
@@ -915,7 +993,6 @@
 					}
 					
 					function drop_group_action() {
-						alert('DROP');
 						var groupe = $("#listgpe2").val().split(' ');
 						var idgroupe = groupe[0];
 						$.ajax({
@@ -932,7 +1009,7 @@
 								});
 					};
 					
-		</script>
+					</script>
 					<section id="five" class="wrapper style1 fullscreen fade-up">
 						<div class="inner">
 							<h2>Sélectionner une fiche</h2>
