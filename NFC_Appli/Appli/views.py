@@ -498,11 +498,26 @@ def fiche(request):
     ###
     return render(request, "fiche.html", context)
 
+
+def decoder(uid_crypted, d, n):
+	compteur = 0
+	msg = []
+	while compteur < len(uid_crypted) : #On decode le code ASCII de chaque lettre
+		print uid_crypted[compteur]
+		ascii = ((int(uid_crypted[compteur])**d)%n)
+		msg.append(chr(ascii)) # Avec la fn chr(ASCII), on trouve le caractere correspondant
+		compteur = compteur + 1
+	return "".join(msg);
+
         
 def trace(request):
     if request.method == 'POST':
         trace_NFC = request.POST.get('traceNFC')
-        print "trace_NFC", trace_NFC
+        print "brute",trace_NFC
+        d= 713
+        n= 1073
+        uid = decoder(trace_NFC.split(","), d, n)
+        print "uid",uid
         if trace_NFC is not None:
             import time
             from datetime import datetime
@@ -510,19 +525,19 @@ def trace(request):
             hour = int(time.strftime('%H', time.localtime()))
             #verifier que nous ne sommes pas dans une periode creuse
             #addToTrace = Trace(tracenfc = trace_NFC)
-            if hour < 5 or hour > 18:
-                return errorPage(request, 'Unauthorized operation.')
+            #if hour < 5 or hour > 18:
+            #    return errorPage(request, 'Unauthorized operation.')
             
             try:
-                etud = Etudiant.objects.get(tracenfc=trace_NFC)
+                etud = Etudiant.objects.get(tracenfc=uid)
                 #tester aussi si l'utilisateur existe déjà dans Utilisateur.objects
             except ObjectDoesNotExist:
                 try:
-                    util = Utilisateur.objects.get(tracenfc=trace_NFC)
+                    util = Utilisateur.objects.get(tracenfc=uid)
                 except ObjectDoesNotExist:
                     admin = Utilisateur.objects.get(username="Admin")
                     if admin.isscanning==1:
-                        NFC = Trace(tracenfc=trace_NFC)
+                        NFC = Trace(tracenfc=uid)
                         NFC.save()
                         return HttpResponse('Ok')
                     else:
@@ -564,7 +579,7 @@ def changeuser(request):
             key = util.validationkey
             send_mail(
     'eLOG Mailing Confirmation',
-    'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://127.0.0.1:8000/Appli/accueil/validateAccount?validationkey='+str(key),
+    'Bonjour, vous venez de vous inscrire sur eLOG, veuillez confirmer votre inscription à l url suivante : http://109.15.75.65/Appli/accueil/validateAccount?validationkey='+str(key),
     'NoReply@elog.com',
     [mailutil],
     fail_silently=False,

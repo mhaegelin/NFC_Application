@@ -54,31 +54,31 @@ INSERT INTO `Fiche` (`IDFiche`, `Valide`) VALUES
 
 
 INSERT INTO `Etudiant` (`IDEtud`, `NomEtud`, `PrenomEtud`, `MailEtud`, `hasBadged`, `TraceNFC`, `IDPromo`) VALUES
-(1, 'Faraux', 'Sylvein', 'sylvein.faraux@gmail.com', true, "FFFFF", 1),
-(2, 'Haegelin', 'Marc', 'marc.haegelin@gmail.com',true, "FFFFF", 1),
-(3, 'Sagayaradjou', 'Davy', 'davy.sagayaradjou@gmail.c',false, "FFFFF",1),
-(4, 'Nom1', 'Prenom1', 'prenom1.nom1@gmail.com',false, "FFFFF", 2),
-(5, 'Nom2', 'Prenom2', 'prenom2.nom2@gmail.com',false, "FFFFF", 2),
-(6, 'Nom3', 'Prenom3', 'prenom3.nom3@gmail.com',false, "FFFFF", 2),
-(7, 'Nom4', 'Prenom4', 'prenom4.nom4@gmail.com',false, "FFFFF", 3),
-(8, 'Nom5', 'Prenom5', 'prenom5.nom5@gmail.com',false, "FFFFF", 3),
-(9, 'Nom6', 'Prenom6', 'prenom6.nom6@gmail.com',false, "FFFFF", 3),
-(10, 'Nom7', 'Prenom7', 'prenom7.nom7@gmail.com',false, "FFFFF", 3),
-(11, 'Nom8', 'Prenom8', 'prenom8.nom8@gmail.com',false, "FFFFF", 3),
-(12, 'Nom9', 'Prenom9', 'prenom9.nom9@gmail.com',false, "FFFFF", 3),
-(13, 'Nom10', 'Prenom10', 'prenom10.nom10@gmail.com', false, "FFFFF",3),
-(14, 'Nom11', 'Prenom11', 'prenom11.nom11@gmail.com',false, "FFFFF", 3),
-(15, 'Nom12', 'Prenom12', 'prenom12.nom12@gmail.com',false, "FFFFF", 3),
-(16, 'Nom13', 'Prenom13', 'prenom13.nom13@gmail.com', false, "FFFFF",3),
-(17, 'Nom14', 'Prenom14', 'prenom14.nom14@gmail.com', false, "FFFFF",3);
+(1, 'Faraux', 'Sylvein', 'sylvein.faraux@gmail.com', false, "FFIJIERG", 1),
+(2, 'Haegelin', 'Marc', 'marc.haegelin@gmail.com',false, "AED16796", 1),
+(3, 'Sagayaradjou', 'Davy', 'davy.sagayaradjou@gmail.c',true, "FFFFF",1),
+(4, 'Martin', 'Paul', 'prenom1.nom1@gmail.com',false, "FFFFF", 2),
+(5, 'Marcel', 'Meline', 'prenom2.nom2@gmail.com',false, "FFFFF", 2),
+(6, 'Baner', 'Bruce', 'prenom3.nom3@gmail.com',false, "FFFFF", 2),
+(7, 'Toral', 'Claude', 'prenom4.nom4@gmail.com',false, "FFFFF", 3),
+(8, 'Carter', 'James', 'prenom5.nom5@gmail.com',false, "FFFFF", 3),
+(9, 'Tarotte', 'Eric', 'prenom6.nom6@gmail.com',false, "FFFFF", 3),
+(10, 'Eluard', 'Paul', 'prenom7.nom7@gmail.com',false, "FFFFF", 3),
+(11, 'Picasse', 'Pablo', 'prenom8.nom8@gmail.com',false, "FFFFF", 3),
+(12, 'Wilson', 'Maxime', 'prenom9.nom9@gmail.com',false, "FFFFF", 3),
+(13, 'Grasse', 'Dany', 'prenom10.nom10@gmail.com', false, "FFFFF",3),
+(14, 'Sarl', 'Remy', 'prenom11.nom11@gmail.com',false, "FFFFF", 3),
+(15, 'Karl', 'Lucie', 'prenom12.nom12@gmail.com',false, "FFFFF", 3),
+(16, 'Idri', 'Sandrine', 'prenom13.nom13@gmail.com', false, "FFFFF",3),
+(17, 'Perez', 'Caroline', 'prenom14.nom14@gmail.com', false, "FFFFF",3);
 
 
 INSERT INTO `Cours` (`IDCours`, `IntituleCours`, `DebutCours`, `FinCours`) VALUES
-(1, 'CM Compilation', '2016-12-12 08:30:00', '2016-12-12 10:30:00'),
-(2, 'TD Compilation Groupe 1', '2016-12-12 10:30:00', '2016-12-12 12:30:00'),
-(3, 'Anglais Groupe 1', '2016-12-12 13:30:00', '2016-12-12 15:30:00'),
-(4, 'CM Algo Dist', '2016-12-13 08:30:00', '2016-12-13 10:30:00'),
-(5, 'TP Algo Dist Groupe 1', '2016-12-13 10:30:00', '2016-12-13 12:30:00');
+(1, 'CM Compilation', '2017-05-09 00:00:00', '2017-05-09 17:30:00'),
+(2, 'TD Compilation Groupe 1', '2017-05-10 08:30:00', '2017-05-10 10:30:00'),
+(3, 'Anglais Groupe 1', '2017-05-10 13:30:00', '2017-05-10 15:30:00'),
+(4, 'CM Algo Dist', '2017-05-10 15:30:00', '2017-05-10 17:30:00'),
+(5, 'TP Algo Dist Groupe 1', '2017-05-11 10:30:00', '2017-05-11 12:30:00');
 
 
 INSERT INTO `Utilisateur` (`idUtil`, `first_name`, `last_name`, `password`, `email`, `username`, `isSuperuser`, `isScanning`, `TraceNFC`, `ValidationKey`, `Validated`) VALUES
