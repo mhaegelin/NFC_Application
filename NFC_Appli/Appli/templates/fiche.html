@@ -23,6 +23,8 @@
 				<div class="inner">
 					<nav>
 						<ul>
+							<li><a href="#fiche">Fiche</a></li>
+							<li><a href="#password">Profil</a></li>
 							<li><a href="{% url 'login' %}">Déconnexion</a></li>
 						</ul>
 					</nav>
@@ -73,6 +75,32 @@
 							</form>
 						</div>
 					</section>
+					<section id="password" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">
+							<h1>Changer son mot de passe : </h1>
+							<hr/>
+							<form action="{% url 'changepassword' %}" method="post">
+							{% csrf_token %}
+								<div class="split">
+										<section>
+										<div class="field">
+											<label for="oldPassword">Ancien mot de passe : </label>
+											<input type="password" name="oldPassword" id="oldPassword" />
+										</div>
+										</section>
+										<section>
+										<div class="field">
+											<label for="newPassword">Nouveau mot de passe : </label>
+											<input type="password" name="newPassword" id="newPassword" />
+										</div>
+										</section>
+								</div>
+								<ul class="actions">
+									<li><input type="submit" class="button" value="Valider"></li>
+								</ul>	
+							</form>
+						</div>
+					</section>
 			</div>
 		<!-- Footer -->
 			<footer id="footer" class="wrapper style1-alt">
@@ -95,7 +123,7 @@
 						} else {
 							 $(this).find("input").prop('checked', true);
 						}
-						});
+						});		
 			</script>
 			<script src=" {% static "assets/js/jquery.min.js" %}"></script>
 			<script src=" {% static "assets/js/jquery.scrollex.min.js" %}"></script>

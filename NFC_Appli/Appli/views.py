@@ -296,6 +296,29 @@ def ajaxchangeetud(request):
     }
     return JsonResponse(data)
     
+def changepassword(request):
+    import json
+    import hashlib
+    try:    
+        user = request.session['userid']
+    except KeyError:
+        user = None
+    if user is None:
+        return errorPage(request, 'Opération non autorisée.')
+        
+    newPassword = request.POST.get('newPassword', None)
+    oldPassword = request.POST.get('oldPassword', None)
+    if (newPassword == "" or oldPassword == ""):
+		return errorPage(request, "Champ non renseigné")
+    hash_object = hashlib.sha1(oldPassword)
+    hex_dig = hash_object.hexdigest()
+    util = Utilisateur.objects.get(idutil=user)
+    if (util.password != hex_dig):
+        return errorPage(request, 'Ancien mot de passe incorrect')
+    hash_object = hashlib.sha1(newPassword)
+    util.password = hash_object.hexdigest()
+    util.save()
+    return render(request, "fiche.html") 
 
 def ajaxdeletud(request):
     import json
@@ -341,8 +364,16 @@ def ajaxfiche(request):
     valide = fiche.valide
     #On récupère les étudiants correspondants au groupe du cours actuel
     cours = Cours.objects.filter(enseigne__idfiche = idFiche) #Le cours correspondant à la fiche
-    agroupe = AGroupe.objects.filter(idcours=cours[0].idcours)
     liste = []
+    try:
+        agroupe = AGroupe.objects.filter(idcours=cours[0].idcours)
+    except IndexError:
+        data = {
+        'id': " ",
+        'valide': "",
+        'listetudfiche': json.dumps(liste)
+        }
+        return JsonResponse(data)		
     for i in range(agroupe.count()):
         listetud = Etudiant.objects.filter(appartient__idgroupe = agroupe[i].idgroupe)
         for etud in listetud:
@@ -435,15 +466,18 @@ def fiche(request):
     ###
     
     ###On récupère la fiche
-    fiche = Fiche.objects.filter(enseigne__idutil = user, enseigne__idcours = cours[0].idcours)
+    try:
+        fiche = Fiche.objects.filter(enseigne__idutil = user, enseigne__idcours = cours[0].idcours)
+        #On récupère l'ensemble des groupes correspondant au cours actuellement donné par le professeur concerné
+        groupe = Groupe.objects.filter(agroupe__idcours = cours[0].idcours)
+        #On récupère la liste des étudiants correspondants au groupe, on retire ceux n'ayant pas badgé
+        liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe).exclude(hasbadged = 0)
+        nbEtudiant = liste_etu.count()
+        context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours[0], 'fiche' : fiche[0].idfiche}
+        #context={}
+    except IndexError:
+        context = {'list_etu' : " ", 'nbEtudiant' : " ", 'user' : user, 'cours' : " ", 'fiche' : " "}
     ###
-    #On récupère l'ensemble des groupes correspondant au cours actuellement donné par le professeur concerné
-    groupe = Groupe.objects.filter(agroupe__idcours = cours[0].idcours)
-    #On récupère la liste des étudiants correspondants au groupe, on retire ceux n'ayant pas badgé
-    liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe).exclude(hasbadged = 0)
-    nbEtudiant = liste_etu.count()
-    context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours[0], 'fiche' : fiche[0].idfiche}
-    #context={}
     return render(request, "fiche.html", context)
 """
         cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
@@ -663,8 +697,10 @@ def validated(request): #Cette vue permet d'effectuer les traitements suite à l
         return errorPage(request, 'Opération non autorisée.')
     
     idfiche = request.POST.get('fiche','')
-    fiche = Fiche.objects.get(idfiche = idfiche)
-
+    try:
+        fiche = Fiche.objects.get(idfiche = idfiche)
+    except ValueError:
+        return errorPage(request, "Validation impossible")
     list_etu = request.POST.getlist('list_etu')
     for idetudiant in list_etu:
         print idetudiant

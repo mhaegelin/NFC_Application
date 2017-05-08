@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^accueil/ajaxdeletud', views.ajaxdeletud, name='ajaxdeletud'),
     url(r'^accueil/ajaxchangeetud', views.ajaxchangeetud, name='ajaxchangeetud'),
     url(r'^accueil/ajaxutil$', views.ajaxutil, name='ajaxutil'),
+    url(r'^accueil/changepassword$', views.changepassword, name='changepassword'),
     url(r'^accueil/ajaxlistetud$', views.ajaxlistetud, name='ajaxlistetud'),
     url(r'^accueil/ajaxlistpromo$', views.ajaxlistpromo, name='ajaxlistpromo'),
 	url(r'^accueil/ajaxdelpromo$', views.ajaxdelpromo, name='ajaxdelpromo'),
