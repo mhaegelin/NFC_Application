@@ -445,6 +445,9 @@ def log_out(request):
 
 
 def fiche(request):
+    import time
+    from datetime import date
+    from datetime import datetime
     ###On récupère l'id de l'utilisateur connecté
     try:    
         user = request.session['userid']
@@ -452,18 +455,15 @@ def fiche(request):
         user = None
     if user is None:
         return errorPage(request, 'Opération non autorisée.')
-    ###    
-    
-    ###On récupère la date et heure actuelle
-    date = datetime.datetime.now()
     ###
-    
+
+    now=datetime.now()
+    print now
     #On récupère le cours correspondant au professeur concerné ET
     #correspondant à la date et heure actuelle
-    #cours = Cours.objects.filter(enseigne__idutil = user.idutil, debutcours__lt=date, fincours__gt=date)
-    ###DEBUG
     cours = Cours.objects.filter(enseigne__idutil = user)
-    ###
+    cours = cours.filter(debutcours__lte=datetime(now.year, now.month, now.day, now.hour + 2, now.minute, now.second), fincours__gte=datetime(now.year, now.month, now.day, now.hour + 2, now.minute, now.second))
+
     
     ###On récupère la fiche
     try:
@@ -474,18 +474,11 @@ def fiche(request):
         liste_etu = Etudiant.objects.filter(appartient__idgroupe = groupe[0].idgroupe).exclude(hasbadged = 0)
         nbEtudiant = liste_etu.count()
         context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours[0], 'fiche' : fiche[0].idfiche}
-        #context={}
     except IndexError:
         context = {'list_etu' : " ", 'nbEtudiant' : " ", 'user' : user, 'cours' : " ", 'fiche' : " "}
     ###
     return render(request, "fiche.html", context)
-"""
-        cours = Cours.objects.get(pk=1) #Il correspondra au cours donne par l'utilisateur
-        liste_etu = Etudiant.objects.filter(idgroupe__enseigne__idutil=user.id, idgroupe__enseigne__idcours=cours.idcours)
-        nbEtudiant = liste_etu.count()
-        context = {'list_etu' : liste_etu, 'nbEtudiant' : nbEtudiant, 'user' : user, 'cours' : cours}
-        return render(request, "fiche.html", context)
-"""
+
         
 def trace(request):
     if request.method == 'POST':
@@ -607,11 +600,9 @@ def printfiche(request):
     #On recupere la fiche
     fiche = Fiche.objects.get(idfiche=idfiche)
     
-    # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="FichePresomptive'+str(idfiche)+'.pdf"'
 	
-    # Create the PDF object, using the response object as its "file."
     p = canvas.Canvas(response)
     
     (width, height) = pagesizes.A4
@@ -622,8 +613,6 @@ def printfiche(request):
     styleBH = styles["Normal"]
     styleBH.alignment = TA_CENTER
 
-    # Draw things on the PDF. Here's where the PDF generation happens.
-    # See the ReportLab documentation for the full list of functionality.
     p.drawString(width/2 - 50, height - 30, "FICHE PRESOMPTIVE N°"+str(idfiche))
     p.setLineWidth(.3)
     p.line(10,height - 50,width - 10,height - 50)
@@ -641,7 +630,6 @@ def printfiche(request):
     hprenom = Paragraph('''<b>Prenom</b>''', styleBH)
     hpresence = Paragraph('''<b>Présence</b>''', styleBH)
 
-    # Need a place to store our table rows
     data = []
     data.append([hnom, hprenom, hpresence])    
     for i in range(agroupe.count()):
@@ -652,10 +640,8 @@ def printfiche(request):
                 dejaPresent = Contient.objects.get(idfiche=idfiche, idetud = user.idetud)
             except Contient.DoesNotExist:
                 presence = 'Absent'
-            # Add a row to the table
             data.append([user.nometud, user.prenometud, presence])
         
-    # Create the table
     table = Table(data, colWidths=[width/3.0 - 10] )
 
     table.setStyle(TableStyle([
@@ -665,7 +651,6 @@ def printfiche(request):
 
     tableW, tableH = table.wrapOn(p, 0, 0)
     table.drawOn(p, 15, height - 200 - tableH)
-    # Close the PDF object cleanly, and we're done.
     p.showPage()
     p.save()
     return response
