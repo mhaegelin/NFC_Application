@@ -1,28 +1,113 @@
+# encoding: utf-8
+
 import nxppy
+import urllib2
 import time
+from urllib import urlencode
 import requests
 from bs4 import BeautifulSoup
 
-url= "http://127.0.0.1:8000/Appli/trace"
+## -- fonctions -- ##
+# La fonction PGCD avec ses 2 arguments a et b
+def pgcd(a,b):
+    # L'algo PGCD
+    while a != b:
+        if a > b:
+            a = a - b
+        else:
+            b = b - a
+    return a;
+
+def chercher_e(p, q, phi_n):
+	# Variables de la boucle
+	compteur = 0
+	PGCD1 = 0
+	global e
+	e = q  #notre e qui s'incrémentera
+	# Tant que PGCD de e et phi(n) différents de 1
+	while PGCD1 != 1 :
+		# Si p inférieur à e et si q inférieur à e et si e inférieur à n
+		if(e > phi_n) : 
+			# La boucle se coupe 
+			print "e non trouvé"
+			break    
+		# Tant que rien n'est trouvé, e s'incrémente
+		e = e + 1
+		
+		# On récupère le résultat du pgcd    
+		PGCD1 = pgcd(e,phi_n)
+
+def creerPQ():
+	global p
+	global q
+	global n
+	global phi_n
+	p=29
+	q=37
+	n= p*q
+	phi_n= (p-1)*(q-1)
+
+	print "p ",p, "\nq ",q, "\nphi_n ",phi_n
+	
+def chiffrer_rsa(uid):
+	taille_du_mot = len(uid)
+	i = 0
+	global uid_crypted	
+	uid_crypted = []
+
+	while i< taille_du_mot :
+		ascii = ord(uid[i]) # On convertie chaque lettre de la trace NFC
+		lettre_crypt = pow(ascii,e)%n # On chiffre la lettre ou plutôt son code ASCII
+		 
+		if ascii > n : # Si le code ASCII est supérieur à n
+			print "Les nombres p et q sont trop petits veuillez recommencer."
+
+		if lettre_crypt > phi_n : # Si le bloc chiffré est supérieur à phi(n)
+			print "Erreur de calcul"
+		uid_crypted.append(lettre_crypt)
+		i = i + 1 # On incrémente i
+#####################
+
+## -- debut -- ##
+
+fichier = open("adressIPserver.txt", "r")
+url= fichier.read()
+fichier.close()
+temps=0
+ancien_uid= "petitTasDeMerde"
+
+## -- ETABLISSEMENT DE LA CLE PUBLIQUE -- ##
+creerPQ()
+chercher_e(p, q, phi_n)
+print "clé publique (",e,",",n,")"
+## -------------------------------------- ##
+
+client = requests.session()
+# Retrieve the CSRF token
+soup = BeautifulSoup(client.get(url).content, "lxml")
+csrftoken = soup.find('input', {"name": "csrfmiddlewaretoken"}).get("value")
 
 mifare=nxppy.Mifare()
 try:
-        while True:
-                try:
-                        uid = mifare.select()
-                        print "Read uid", uid
+	while True:
+		try:
+			uid= mifare.select()
+        		if (uid != ancien_uid) or ((time.time() - temps) >3):
+				ancien_uid= uid
+				temps= time.time()
+				print "Read uid", uid
+				chiffrer_rsa(uid) #la version cryptée se trouve mtn dans uid_crypted
+				params = dict(traceNFC=uid_crypted, csrfmiddlewaretoken=csrftoken)
+				r = client.post(url, data=params, headers=dict(Referer=url))
 
-                        client = requests.session()
-						# Retrieve the CSRF token
-                        soup = BeautifulSoup(client.get(url).content, "lxml")
-                        csrftoken = soup.find('input', {"name": "csrfmiddlewaretoken"}).get("value")
-                        # Create the params
-                        params = dict(traceNFC=uid, csrfmiddlewaretoken=csrftoken)
-                        r = client.post(url, data=params, headers=dict(Referer=url))
+				"""params = {'pseudo': uid}
+				http_params = urlencode(params)
 
-                except nxppy.SelectError:
-                        pass
-                time.sleep(0.2)
+				req= urllib2.Request(url, http_params)
+				connection = urllib2.urlopen(req)"""
+
+		except nxppy.SelectError:
+        		pass
+	 	time.sleep(0.2)   
 except KeyboardInterrupt:
         pass
-
