@@ -462,7 +462,7 @@ def fiche(request):
     #On récupère le cours correspondant au professeur concerné ET
     #correspondant à la date et heure actuelle
     cours = Cours.objects.filter(enseigne__idutil = user)
-    cours = cours.filter(debutcours__lte=datetime(now.year, now.month, now.day, now.hour + 2, now.minute, now.second), fincours__gte=datetime(now.year, now.month, now.day, now.hour + 2, now.minute, now.second))
+    cours = cours.filter(debutcours__lte=datetime(now.year, now.month, now.day, now.hour + 2, now.minute, now.second), fincours__gte=datetime(now.year, now.month, now.day, now.hour + 1, now.minute, now.second))
 
     
     ###On récupère la fiche
