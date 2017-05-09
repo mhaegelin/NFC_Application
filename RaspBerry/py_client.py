@@ -104,7 +104,7 @@ try:
 				
 				#enregistrement dans le log
 				t= time.localtime(temps)
-				timelog= "["+str(t.tm_mday)+"."+str(t.tm_mon)+"."+str(t.tm_year)+" at "+str(t.tm_hour)+":"+str(t.tm_min)+"] "
+				timelog= time.strftime("[%d.%m.%Y at %H:%M] ", t)
 				with open("card_log.txt", "a") as logFile:
 					logFile.write(timelog+uid_crypted+"\n")
 
