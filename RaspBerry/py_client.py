@@ -47,7 +47,7 @@ def creerPQ():
 	n= p*q
 	phi_n= (p-1)*(q-1)
 
-	print "p ",p, "\nq ",q, "\nphi_n ",phi_n
+	print "Choix de p : ",p, "\nChoix de q : ",q, "\nphi_n : ",phi_n
 	
 def chiffrer_rsa(uid):
 	taille_du_mot = len(uid)
@@ -82,35 +82,49 @@ ancien_uid= "petitTasDeMerde"
 print "Génération de la clé publique..."
 creerPQ()
 chercher_e(p, q, phi_n)
-print "clé publique (",e,",",n,")\n"
+print "Clé publique (",e,",",n,")\n"
 ## -------------------------------------- ##
 
 client = requests.session()
 # Retrieve the CSRF token
-print "Récupération du token"
+print "Récupération du token de l'application eLog"
 soup = BeautifulSoup(client.get(url).content, "lxml")
 csrftoken = soup.find('input', {"name": "csrfmiddlewaretoken"}).get("value")
+debug=0
 
 mifare=nxppy.Mifare()
 try:
+	print "Pret pour lecture"
+	
+	inDebug = raw_input('Lecture silencieuse des cartes ? (O/n) : ')
+	if inDebug:
+		if ((debug=="n")or(debug=="N")):
+			debug=1
+		else:
+			debug=0
+	else:
+		debug=0
+
 	while True:
 		try:
 			uid= mifare.select()
         		if (uid != ancien_uid) or ((time.time() - temps) >3):
 				ancien_uid= uid
 				temps= time.time()
-				#print "Read uid", uid
-				chiffrer_rsa(uid) #la version cryptée se trouve mtn dans uid_crypted
 				
-				#enregistrement dans le log
-				t= time.localtime(temps)
-				timelog= time.strftime("[%d.%m.%Y at %H:%M] ", t)
-				with open("card_log.txt", "a") as logFile:
-					logFile.write(timelog+uid_crypted+"\n")
-
-				#print "uid crypted ",uid_crypted
+				chiffrer_rsa(uid) #la version cryptée se trouve mtn dans la var globale uid_crypted
+				
 				params = dict(traceNFC=uid_crypted, csrfmiddlewaretoken=csrftoken)
 				r = client.post(url, data=params, headers=dict(Referer=url))
+
+				if debug==1:
+                                        print "Read UID : ", uid,"\nUID cryptée : ",uid_crypted
+
+				#enregistrement dans le log
+                                t= time.localtime(temps)
+                                timelog= time.strftime("[%d.%m.%Y at %H:%M] ", t)
+                                with open("card_log.txt", "a") as logFile:
+                                        logFile.write(timelog+uid_crypted+"\n")
 
 				"""methode post classique
 				params = {'pseudo': uid}
