@@ -53,7 +53,7 @@ def chiffrer_rsa(uid):
 	taille_du_mot = len(uid)
 	i = 0
 	global uid_crypted	
-	uid_crypted = []
+	tab = []
 
 	while i< taille_du_mot :
 		ascii = ord(uid[i]) # On convertie chaque lettre de la trace NFC
@@ -64,26 +64,30 @@ def chiffrer_rsa(uid):
 
 		if lettre_crypt > phi_n : # Si le bloc chiffré est supérieur à phi(n)
 			print "Erreur de calcul"
-		uid_crypted.append(lettre_crypt)
+		tab.append(str(lettre_crypt))
 		i = i + 1 # On incrémente i
+	uid_crypted= ','.join(tab)
 #####################
 
 ## -- debut -- ##
 
 fichier = open("adressIPserver.txt", "r")
 url= fichier.read()
+#url= "http://109.15.75.65/Appli/trace"
 fichier.close()
 temps=0
 ancien_uid= "petitTasDeMerde"
 
 ## -- ETABLISSEMENT DE LA CLE PUBLIQUE -- ##
+print "Génération de la clé publique..."
 creerPQ()
 chercher_e(p, q, phi_n)
-print "clé publique (",e,",",n,")"
+print "clé publique (",e,",",n,")\n"
 ## -------------------------------------- ##
 
 client = requests.session()
 # Retrieve the CSRF token
+print "Récupération du token"
 soup = BeautifulSoup(client.get(url).content, "lxml")
 csrftoken = soup.find('input', {"name": "csrfmiddlewaretoken"}).get("value")
 
@@ -95,12 +99,21 @@ try:
         		if (uid != ancien_uid) or ((time.time() - temps) >3):
 				ancien_uid= uid
 				temps= time.time()
-				print "Read uid", uid
+				#print "Read uid", uid
 				chiffrer_rsa(uid) #la version cryptée se trouve mtn dans uid_crypted
+				
+				#enregistrement dans le log
+				t= time.localtime(temps)
+				timelog= "["+str(t.tm_mday)+"."+str(t.tm_mon)+"."+str(t.tm_year)+" at "+str(t.tm_hour)+":"+str(t.tm_min)+"] "
+				with open("card_log.txt", "a") as logFile:
+					logFile.write(timelog+uid_crypted+"\n")
+
+				#print "uid crypted ",uid_crypted
 				params = dict(traceNFC=uid_crypted, csrfmiddlewaretoken=csrftoken)
 				r = client.post(url, data=params, headers=dict(Referer=url))
 
-				"""params = {'pseudo': uid}
+				"""methode post classique
+				params = {'pseudo': uid}
 				http_params = urlencode(params)
 
 				req= urllib2.Request(url, http_params)
